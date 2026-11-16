@@ -19,11 +19,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   with UTF-8 file I/O through `moonbitlang/x/fs`.
 - `scripts/msvc-env.sh`: locate MSVC + Windows SDK via `vswhere` and export
   `PATH` / `INCLUDE` / `LIB` for Git Bash, without `vcvars64.bat`.
+- `scripts/toolchain-env.sh`: locate the MoonBit toolchain when `moon` is not on
+  `PATH` (honours `MOON` / `MOON_BIN_DIR`, probes the official install dir and
+  managed toolchain directories); `build.sh` and `consistency.sh` source it.
+- GitHub Actions workflow (`.github/workflows/ci.yml`): a `fmt` job
+  (`moon fmt --check`, `moon check --deny-warn`, `.mbti` drift, rule lint, spec
+  index freshness), a `test` job matrixed over `wasm` / `wasm-gc` / `js` /
+  `native`, and a `consistency` job that runs the full cross-backend check and
+  uploads release artifacts.
 
 ### Fixed
 - `pattern` detectors now apply their `validator` before scoring; this removes
   false positives such as `ac` in `contact` being treated as IPv6.
 - `scripts/build.sh` no longer mislabels the ESM bundle as `veil.iife.js`.
+- `scripts/consistency.sh` reports the real compiler error instead of a bare
+  `FAIL` line, and no longer swallows failing `moon test` runs (`pipefail` plus
+  `|| true` hid the exit status). Native is skipped only when neither
+  `cl.exe` / `clang-cl.exe` nor `clang` is available, so Linux/macOS run it too.
 
 ### Changed
 - `scripts/consistency.sh` now covers `wasm` / `wasm-gc` / `js` / `native`,

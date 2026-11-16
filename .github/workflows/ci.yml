@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # 脚本内部调用不打印工具链提示
+  TOOLCHAIN_ENV_QUIET: "1"
+  # 需要强制重新下载工具链时改这个值
+  MOONBIT_TOOLCHAIN_CACHE: v1
+
+jobs:
+  fmt:
+    name: format / rules / spec
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache MoonBit toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.moon/bin
+            ~/.moon/lib
+            ~/.moon/include
+          key: moonbit-${{ runner.os }}-${{ env.MOONBIT_TOOLCHAIN_CACHE }}
+
+      - name: Install MoonBit
+        run: |
+          if [ ! -x "$HOME/.moon/bin/moon" ]; then
+            curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          fi
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Toolchain version
+        run: |
+          moon version
+          moon fmt --version || true
+
+      - name: moon fmt --check
+        run: moon fmt --check
+
+      - name: moon check (warnings are errors)
+        run: moon check --deny-warn
+
+      - name: Generated interfaces are up to date
+        run: git diff --exit-code -- '*.mbti'
+
+      - name: Rules lint
+        run: bash scripts/rules-lint.sh
+
+      - name: Spec index is up to date
+        run: |
+          bash scripts/gen-spec.sh
+          git diff --exit-code -- spec/rules-index.json
+
+  test:
+    name: test / ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [wasm, wasm-gc, js, native]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache MoonBit toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.moon/bin
+            ~/.moon/lib
+            ~/.moon/include
+          key: moonbit-${{ runner.os }}-${{ env.MOONBIT_TOOLCHAIN_CACHE }}
+
+      - name: Install MoonBit
+        run: |
+          if [ ! -x "$HOME/.moon/bin/moon" ]; then
+            curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          fi
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Install C toolchain (native backend)
+        if: matrix.target == 'native'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang lld
+
+      - name: moon check
+        run: moon check --target ${{ matrix.target }} --deny-warn
+
+      - name: moon test
+        run: moon test --target ${{ matrix.target }}
+
+      - name: moon build
+        run: moon build --target ${{ matrix.target }}
+
+  consistency:
+    name: cross-backend consistency
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Cache MoonBit toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.moon/bin
+            ~/.moon/lib
+            ~/.moon/include
+          key: moonbit-${{ runner.os }}-${{ env.MOONBIT_TOOLCHAIN_CACHE }}
+
+      - name: Install MoonBit
+        run: |
+          if [ ! -x "$HOME/.moon/bin/moon" ]; then
+            curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          fi
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Install C toolchain (native backend)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clang lld
+
+      - name: Consistency check (4 backends + golden cases + HMAC vector)
+        run: bash scripts/consistency.sh
+
+      - name: Build release artifacts
+        run: bash scripts/build.sh --release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: veil-dist
+          path: dist/
+          if-no-files-found: warn

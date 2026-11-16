@@ -5,6 +5,14 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# 定位 MoonBit 工具链（moon 可能不在默认 PATH 中）。
+if [ -f scripts/toolchain-env.sh ]; then
+  source scripts/toolchain-env.sh || {
+    echo "ERROR: MoonBit toolchain not found (install it or set MOON=/path/to/moon)" >&2
+    exit 1
+  }
+fi
+
 # Windows: 自动导入 MSVC 环境（native 构建需要 cl.exe）。
 case "${OSTYPE:-}" in
   msys*|cygwin*)

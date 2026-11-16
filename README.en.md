@@ -7,6 +7,7 @@
 One MoonBit kernel for JS / WASM / WASM-GC / Native;<br>
 one declarative JSON rule set, byte-identical across backends.
 
+[![CI](https://github.com/UNKN0WNi/veil/actions/workflows/ci.yml/badge.svg)](https://github.com/UNKN0WNi/veil/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20261104-orange.svg)](https://www.moonbitlang.com/)
 [![Backends](https://img.shields.io/badge/backends-js%20%7C%20wasm%20%7C%20wasm--gc%20%7C%20native-green.svg)](#artifacts-and-entry-points)
@@ -191,7 +192,7 @@ spans:
   ipv4 34-42 operator=redact detector=ipv4
 ```
 
-Under Windows Git Bash, `scripts/build.sh` imports the MSVC environment automatically; you can also run `source scripts/msvc-env.sh` by hand. When a rule file is unreadable, a rule set is invalid or the input is missing, the CLI exits with code `2`.
+Under Windows Git Bash, `scripts/build.sh` imports the MSVC environment automatically; you can also run `source scripts/msvc-env.sh` by hand. When `moon` is not on the default PATH, the scripts locate the toolchain through `scripts/toolchain-env.sh` (override with `MOON=/path/to/moon`). When a rule file is unreadable, a rule set is invalid or the input is missing, the CLI exits with code `2`.
 
 ## Rule format
 
@@ -308,7 +309,8 @@ input text / JSON / log line
 | `cli/` `js/` `wasm/` | Three entry packages; `cli/app` holds the testable CLI logic, `cli/` keeps only `main` |
 | `rules/` | Four built-in rule sets: base / cn / secrets / headers |
 | `spec/` | Language-neutral spec: entities, validators, operators, JSON Schema, golden cases and corpus |
-| `scripts/` | Consistency, rule lint, spec generation, artifact build |
+| `scripts/` | Consistency, rule lint, spec generation, artifact build, toolchain and MSVC environment discovery |
+| `.github/workflows/` | CI: format and warning gates, four-target matrix, cross-backend consistency |
 
 Dependencies flow one way, with no cycles:
 
@@ -355,6 +357,14 @@ bash scripts/build.sh          # build JS / WASM / WASM-GC / Native into dist/
 | L3 cross-backend | The same cases compiled and run on wasm / wasm-gc / js / native |
 | L4 golden | Byte-for-byte comparison against `spec/test-cases/cases.json` (JS ESM + native CLI) plus the HMAC standard vector |
 
+CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) turns that contract into three jobs:
+
+| Job | Coverage |
+| --- | --- |
+| `fmt` | `moon fmt --check`, `moon check --deny-warn`, no drift in generated `.mbti`, rule-set lint, `spec/rules-index.json` in sync with `rules/` |
+| `test` | `wasm` / `wasm-gc` / `js` / `native` matrix: check + test + build |
+| `consistency` | Full `scripts/consistency.sh` run, 6 golden cases, HMAC vector, plus release artifacts uploaded |
+
 ## API reference
 
 **MoonBit (`veil/core`):**
@@ -397,7 +407,8 @@ veil/
 ├── js/ wasm/           the two runtime entry points
 ├── rules/              base / cn / secrets / headers
 ├── spec/               entities / validators / operators / schemas / test-cases
-├── scripts/            consistency / rules-lint / gen-spec / build / msvc-env
+├── scripts/            consistency / rules-lint / gen-spec / build / msvc-env / toolchain-env
+├── .github/workflows/  CI: fmt + four-target matrix + consistency
 ├── moon.mod            module definition
 ├── README.md           Chinese version
 ├── README.en.md        English version

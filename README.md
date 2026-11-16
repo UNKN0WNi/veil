@@ -7,6 +7,7 @@
 一份 MoonBit 内核面向 JS / WASM / WASM-GC / Native；<br>
 一份声明式 JSON 规则，跨后端逐字节一致。
 
+[![CI](https://github.com/UNKN0WNi/veil/actions/workflows/ci.yml/badge.svg)](https://github.com/UNKN0WNi/veil/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20261104-orange.svg)](https://www.moonbitlang.com/)
 [![Backends](https://img.shields.io/badge/backends-js%20%7C%20wasm%20%7C%20wasm--gc%20%7C%20native-green.svg)](#产物与入口)
@@ -191,7 +192,7 @@ spans:
   ipv4 34-42 operator=redact detector=ipv4
 ```
 
-Windows Git Bash 下 `scripts/build.sh` 会自动导入 MSVC 环境；也可手动执行 `source scripts/msvc-env.sh`。规则文件读取失败、规则非法或输入缺失时，CLI 以退出码 `2` 结束。
+Windows Git Bash 下 `scripts/build.sh` 会自动导入 MSVC 环境；也可手动执行 `source scripts/msvc-env.sh`。`moon` 不在默认 PATH 时，脚本会通过 `scripts/toolchain-env.sh` 自动定位工具链（也可用 `MOON=/path/to/moon` 指定）。规则文件读取失败、规则非法或输入缺失时，CLI 以退出码 `2` 结束。
 
 ## 规则格式
 
@@ -308,7 +309,8 @@ MoonBit 层拿到的是 `RedactResult`：
 | `cli/` `js/` `wasm/` | 三个入口包；`cli/app` 承载可测试的 CLI 逻辑，`cli/` 只留 `main` |
 | `rules/` | 4 套内置规则：base / cn / secrets / headers |
 | `spec/` | 语言无关规范：实体、校验器、算子、JSON Schema、黄金用例与 corpus |
-| `scripts/` | 一致性、规则 lint、spec 生成、产物构建 |
+| `scripts/` | 一致性、规则 lint、spec 生成、产物构建、工具链与 MSVC 环境探测 |
+| `.github/workflows/` | CI：格式与警告门禁、四端矩阵、跨后端一致性 |
 
 依赖是单向的，没有环：
 
@@ -355,6 +357,14 @@ bash scripts/build.sh          # 构建 JS / WASM / WASM-GC / Native 产物到 d
 | L3 跨后端 | 同一套用例在 wasm / wasm-gc / js / native 编译并运行 |
 | L4 黄金 | `spec/test-cases/cases.json` 逐字节比对（JS ESM + native CLI）+ HMAC 标准向量 |
 
+CI（[`.github/workflows/ci.yml`](./.github/workflows/ci.yml)）把上面这套口径固化成三个 job：
+
+| Job | 覆盖 |
+| --- | --- |
+| `fmt` | `moon fmt --check`、`moon check --deny-warn`、生成的 `.mbti` 无漂移、规则集 lint、`spec/rules-index.json` 与 `rules/` 同步 |
+| `test` | `wasm` / `wasm-gc` / `js` / `native` 四端矩阵：check + test + build |
+| `consistency` | `scripts/consistency.sh` 全量一致性、6 条黄金用例、HMAC 向量，并上传 release 产物 |
+
 ## API 参考
 
 **MoonBit（`veil/core`）：**
@@ -397,7 +407,8 @@ veil/
 ├── js/ wasm/           两个运行时入口
 ├── rules/              base / cn / secrets / headers 四套规则
 ├── spec/               entities / validators / operators / schemas / test-cases
-├── scripts/            consistency / rules-lint / gen-spec / build / msvc-env
+├── scripts/            consistency / rules-lint / gen-spec / build / msvc-env / toolchain-env
+├── .github/workflows/  CI：fmt + 四端矩阵 + 一致性
 ├── moon.mod            模块定义
 ├── README.md           中文版
 ├── README.en.md        英文版

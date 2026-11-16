@@ -4,9 +4,18 @@
 #   默认 targets = wasm wasm-gc js native
 # 原理：同一套 spec/test-cases/cases.json，在每个后端编译产物上运行（若可运行），
 #       比对 expected_output 逐字节一致。
-#   native 需要 cl.exe / clang-cl.exe 在 PATH 中；否则自动跳过。
+#   native 需要 cl.exe（Windows，见 msvc-env.sh）或 clang（Linux/macOS）；
+#   都没有时自动跳过 native，其余后端照常验证。
 set -euo pipefail
 cd "$(dirname "$0")/.."
+
+# 定位 MoonBit 工具链（moon 可能不在默认 PATH 中）。
+if [ -f scripts/toolchain-env.sh ]; then
+  source scripts/toolchain-env.sh || {
+    echo "ERROR: MoonBit toolchain not found (install it or set MOON=/path/to/moon)" >&2
+    exit 1
+  }
+fi
 
 # Windows: 自动导入 MSVC 环境（native 构建需要 cl.exe）。
 case "${OSTYPE:-}" in
@@ -24,16 +33,34 @@ if [ ${#TARGETS[@]} -eq 0 ]; then
 fi
 
 echo "== veil consistency check =="
+echo "   moon: $MOON ($("$MOON" version 2>/dev/null | head -n1))"
+echo "   node: $(node --version 2>/dev/null || echo 'not found')"
 for t in "${TARGETS[@]}"; do
-  if [ "$t" = "native" ] && ! command -v cl >/dev/null 2>&1 && ! command -v clang-cl >/dev/null 2>&1; then
+  if [ "$t" = "native" ] && ! command -v cl >/dev/null 2>&1 \
+     && ! command -v clang-cl >/dev/null 2>&1 \
+     && ! command -v clang >/dev/null 2>&1; then
     echo "--- target: native ---"
-    echo "SKIP: cl.exe / clang-cl.exe not in PATH (run from a Developer Command Prompt or call vcvars64.bat)"
+    echo "SKIP: no cl.exe / clang-cl.exe / clang in PATH (Windows: bash scripts/msvc-env.sh; Linux/macOS: install clang)"
     continue
   fi
   echo "--- target: $t ---"
-  "$MOON" check --target "$t" >/dev/null 2>&1 || { echo "FAIL: moon check $t"; exit 1; }
-  "$MOON" test --target "$t" 2>&1 | grep -E "Total tests|FAILED" || true
-  "$MOON" build --target "$t" >/dev/null 2>&1 || { echo "FAIL: moon build $t"; exit 1; }
+  # 失败时把真实报错打出来，而不是只留一行 FAIL。
+  if ! out="$("$MOON" check --target "$t" 2>&1)"; then
+    printf '%s\n' "$out"
+    echo "FAIL: moon check $t"
+    exit 1
+  fi
+  if ! out="$("$MOON" test --target "$t" 2>&1)"; then
+    printf '%s\n' "$out"
+    echo "FAIL: moon test $t"
+    exit 1
+  fi
+  printf '%s\n' "$out" | grep -E "Total tests" || true
+  if ! out="$("$MOON" build --target "$t" 2>&1)"; then
+    printf '%s\n' "$out"
+    echo "FAIL: moon build $t"
+    exit 1
+  fi
 done
 
 # Golden cases via the JS ESM product (runnable in Node).
