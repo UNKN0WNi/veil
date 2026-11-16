@@ -1,0 +1,54 @@
+name: Setup MoonBit
+description: |
+  Install the MoonBit toolchain (cached), refresh the package registry index and
+  optionally install the C toolchain required by the native backend.
+
+inputs:
+  native:
+    description: Install clang/lld for the native backend
+    required: false
+    default: "false"
+  cache-key:
+    description: Extra cache-key component; bump to force a fresh toolchain download
+    required: false
+    default: "v1"
+
+runs:
+  using: composite
+  steps:
+    - name: Cache MoonBit toolchain
+      uses: actions/cache@v4
+      with:
+        path: ~/.moon
+        key: moonbit-${{ runner.os }}-${{ inputs.cache-key }}
+        restore-keys: |
+          moonbit-${{ runner.os }}-
+
+    - name: Install MoonBit
+      shell: bash
+      run: |
+        if [ ! -x "$HOME/.moon/bin/moon" ]; then
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+        else
+          echo "MoonBit toolchain restored from cache"
+        fi
+        echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+    # 依赖解析需要 registry 索引；缓存命中后仍需刷新一次，否则新依赖会解析失败。
+    - name: Update registry index
+      shell: bash
+      run: "$HOME/.moon/bin/moon update"
+
+    - name: Install C toolchain for the native backend
+      if: inputs.native == 'true'
+      shell: bash
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq clang lld
+
+    - name: Toolchain versions
+      shell: bash
+      run: |
+        "$HOME/.moon/bin/moon" version
+        echo "node:  $(node --version 2>/dev/null || echo none)"
+        echo "clang: $(clang --version 2>/dev/null | head -n1 || echo none)"

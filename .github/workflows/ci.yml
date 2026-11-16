@@ -16,8 +16,6 @@ permissions:
 env:
   # 脚本内部调用不打印工具链提示
   TOOLCHAIN_ENV_QUIET: "1"
-  # 需要强制重新下载工具链时改这个值
-  MOONBIT_TOOLCHAIN_CACHE: v1
 
 jobs:
   fmt:
@@ -27,26 +25,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache MoonBit toolchain
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.moon/bin
-            ~/.moon/lib
-            ~/.moon/include
-          key: moonbit-${{ runner.os }}-${{ env.MOONBIT_TOOLCHAIN_CACHE }}
-
-      - name: Install MoonBit
-        run: |
-          if [ ! -x "$HOME/.moon/bin/moon" ]; then
-            curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          fi
-          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
-
-      - name: Toolchain version
-        run: |
-          moon version
-          moon fmt --version || true
+      - name: Setup MoonBit
+        uses: ./.github/actions/setup-moonbit
 
       - name: moon fmt --check
         run: moon fmt --check
@@ -76,27 +56,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache MoonBit toolchain
-        uses: actions/cache@v4
+      - name: Setup MoonBit
+        uses: ./.github/actions/setup-moonbit
         with:
-          path: |
-            ~/.moon/bin
-            ~/.moon/lib
-            ~/.moon/include
-          key: moonbit-${{ runner.os }}-${{ env.MOONBIT_TOOLCHAIN_CACHE }}
-
-      - name: Install MoonBit
-        run: |
-          if [ ! -x "$HOME/.moon/bin/moon" ]; then
-            curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          fi
-          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
-
-      - name: Install C toolchain (native backend)
-        if: matrix.target == 'native'
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq clang lld
+          native: ${{ matrix.target == 'native' && 'true' || 'false' }}
 
       - name: moon check
         run: moon check --target ${{ matrix.target }} --deny-warn
@@ -119,26 +82,10 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Cache MoonBit toolchain
-        uses: actions/cache@v4
+      - name: Setup MoonBit
+        uses: ./.github/actions/setup-moonbit
         with:
-          path: |
-            ~/.moon/bin
-            ~/.moon/lib
-            ~/.moon/include
-          key: moonbit-${{ runner.os }}-${{ env.MOONBIT_TOOLCHAIN_CACHE }}
-
-      - name: Install MoonBit
-        run: |
-          if [ ! -x "$HOME/.moon/bin/moon" ]; then
-            curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          fi
-          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
-
-      - name: Install C toolchain (native backend)
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq clang lld
+          native: "true"
 
       - name: Consistency check (4 backends + golden cases + HMAC vector)
         run: bash scripts/consistency.sh
