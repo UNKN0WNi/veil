@@ -7,7 +7,7 @@
   "types": "veil.d.ts",
   "files": ["veil.js", "veil.d.ts", "README.md"],
   "license": "Apache-2.0",
-  "repository": { "type": "git", "url": "https://github.com/veil-lang/veil" },
+  "repository": { "type": "git", "url": "https://github.com/UNKN0WNi/veil" },
   "keywords": ["pii", "redaction", "masking", "privacy", "log-scrubbing", "moonbit"],
   "scripts": {
     "build": "../scripts/build.sh",

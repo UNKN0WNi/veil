@@ -8,7 +8,7 @@ license = "Apache-2.0"
 
 description = "Cross-platform PII & log redaction kernel: one declarative JSON ruleset, byte-identical across backends"
 
-repository = "https://github.com/veil-lang/veil"
+repository = "https://github.com/UNKN0WNi/veil"
 
 keywords = [ "pii", "redaction", "masking", "privacy", "log-scrubbing" ]
 

@@ -16,8 +16,7 @@ echo "== js (esm) =="
 JS="_build/js/$PROFILE/build/js/js.js"
 if [ -f "$JS" ]; then
   cp "$JS" dist/veil.js
-  cp "$JS" dist/veil.iife.js
-  echo "  -> dist/veil.js, dist/veil.iife.js"
+  echo "  -> dist/veil.js (ESM)"
 fi
 
 echo "== wasm =="

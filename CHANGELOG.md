@@ -27,4 +27,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Native CLI target requires MSVC (`cl.exe`); verified via CI in environments with it.
 - AES-GCM vault and stream chunk-invariance are planned for v1.
 
-[0.1.0]: https://github.com/veil-lang/veil/releases/tag/v0.1.0
+[0.1.0]: https://github.com/UNKN0WNi/veil/releases/tag/v0.1.0
