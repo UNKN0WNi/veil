@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20261104-orange.svg)](https://www.moonbitlang.com/)
 [![Backends](https://img.shields.io/badge/backends-js%20%7C%20wasm%20%7C%20wasm--gc%20%7C%20native-green.svg)](#产物与入口)
-[![Tests](https://img.shields.io/badge/tests-19%20x%203%20backends-brightgreen.svg)](#测试与质量)
+[![Tests](https://img.shields.io/badge/tests-20%20x%204%20backends-brightgreen.svg)](#测试与质量)
 
 [快速开始](#快速开始) · [用法](#用法) · [规则格式](#规则格式) · [输出与审计](#输出与审计) · [架构](#架构) · [测试与质量](#测试与质量) · [已知限制](#已知限制)
 
@@ -36,6 +36,7 @@ git clone https://github.com/UNKN0WNi/veil.git
 cd veil
 
 moon install
+moon build --target js
 moon test --target js
 ```
 
@@ -57,6 +58,12 @@ node demo.mjs
 
 `redact_text` 返回**单行 JSON 字符串**：`text` 是脱敏结果，`count` 是命中数。`count` 为 `-1` 表示规则加载失败——调用方必须检查，不要把空 `text` 当成功。
 
+构建全部四端产物（Windows 下脚本会自动导入 MSVC 环境）：
+
+```bash
+bash scripts/build.sh
+```
+
 ## 用法
 
 ### 产物与入口
@@ -66,7 +73,7 @@ node demo.mjs
 | `veil.js` + `veil.d.ts` | JS (ESM) | Node / 打包器 / 浏览器 | 已验证 |
 | `*.wasm` | WASM (MVP) | 边缘 / 任意 wasm 运行时 | 已验证 |
 | `*.wasm` | WASM-GC | 现代浏览器 / 边缘 | 已验证 |
-| `veil` / `veil.exe` | Native | CLI / 服务端 | 构建需 MSVC / clang，CLI 未完成 |
+| `veil` / `veil.exe` | Native | CLI / 服务端 | 已验证（Windows MSVC 2022） |
 
 ### Node / ESM
 
@@ -139,16 +146,50 @@ println(result.text)                  // 脱敏后的文本
 println(result.report.matched_count)  // 命中数
 ```
 
-### CLI（native，开发中）
+### CLI（native）
 
-`cli/` 已有参数解析与帮助输出，native 构建需要 MSVC（Windows）或 clang（Unix）：
+Windows 需要 MSVC（Build Tools 的“使用 C++ 的桌面开发”工作负载）；Unix 需要 clang。`scripts/build.sh` 会构建并把可执行文件复制到 `dist/veil.exe`（Unix 为 `dist/veil`）。
 
 ```bash
-moon build --target native
-./_build/native/debug/build/cli/cli --help   # Windows 下为 cli.exe
+bash scripts/build.sh
+
+./dist/veil.exe --text "user alice@example.com login from 10.2.3.4" --rules rules/base.json
+# user [REDACTED] login from [REDACTED]
+
+./dist/veil.exe --text "user alice@example.com login from 10.2.3.4" --rules rules/base.json --json
+# {"text":"user [REDACTED] login from [REDACTED]","count":2}
+
+./dist/veil.exe --input in.log --rules rules/base.json --output out.log
+./dist/veil.exe --text "user alice@example.com" --rules rules/base.json --dry-run
 ```
 
-**当前 CLI 只完成骨架**：文件读取与规则加载尚未接入，`--text` 会打印提示而不是执行脱敏。生产使用请走 JS / WASM 产物或 `@core` API；CLI 的完成情况见[已知限制](#已知限制)。
+| 参数 | 说明 |
+| --- | --- |
+| `--text <TEXT>` | 直接脱敏一段内联文本 |
+| `--input <FILE>` | 从文件读取输入 |
+| `--rules <FILE>` | 规则集 JSON（必填） |
+| `--output <FILE>` | 写入文件；默认 stdout |
+| `--key-env <NAME>` | 从环境变量读 HMAC 密钥，默认 `VEIL_KEY` |
+| `--dry-run` | 只输出审计报告，不含原文 |
+| `--json` | 输出 `{"text":...,"count":...}`，便于脚本消费 |
+| `--version` / `--help` | 版本 / 帮助 |
+
+`--dry-run` 输出示例：
+
+```text
+rules_version=2026.11.1
+matched=2
+by_entity:
+  email=1
+  ipv4=1
+by_operator:
+  redact=2
+spans:
+  email 5-22 operator=redact detector=email
+  ipv4 34-42 operator=redact detector=ipv4
+```
+
+Windows Git Bash 下 `scripts/build.sh` 会自动导入 MSVC 环境；也可手动执行 `source scripts/msvc-env.sh`。规则文件读取失败、规则非法或输入缺失时，CLI 以退出码 `2` 结束。
 
 ## 规则格式
 
@@ -266,11 +307,11 @@ MoonBit 层拿到的是 `RedactResult`：
 
 「跨后端一致」是约束，不是期望：
 
-- `core/`、`crypto/` 不写 `target` 分支，JS / WASM / WASM-GC 编译同一份源码。
+- `core/`、`crypto/` 不写 `target` 分支，JS / WASM / WASM-GC / Native 编译同一份源码。
 - 检测器按规则数组顺序执行；重叠消解用四级 tie-break（分数 → 声明顺序 → 长度 → 起点），不依赖哈希遍历。
 - 文本轨只在原字符串上替换，输出不做二次序列化，天然保序、保空白、保数字原文。
 - HMAC 与 token 一律 UTF-8；黄金向量 `HMAC-SHA256("secret-key","hello@example.com") = 928bc0a4...051f6d80`。
-- 实测（2026-11-16）：**19 个测试 × wasm / wasm-gc / js 全通过**；6 条黄金用例在 JS ESM 产物上逐字节一致。
+- 实测（2026-11-16）：**20 个测试 × wasm / wasm-gc / js / native 全通过**；6 条黄金用例在 JS ESM 产物与 native CLI 上分别逐字节一致。
 
 ```bash
 bash scripts/consistency.sh
@@ -279,20 +320,21 @@ bash scripts/consistency.sh
 ## 测试与质量
 
 ```bash
-moon test --target js          # 19 个测试
+moon test --target js          # 20 个测试
 moon test --target wasm
 moon test --target wasm-gc
+moon test --target native
 bash scripts/rules-lint.sh     # 规则集语法与禁用正则检查
-bash scripts/consistency.sh    # 三端 check / test / build + 黄金用例 + HMAC 向量
-bash scripts/build.sh          # 构建 JS / WASM / WASM-GC 产物到 dist/
+bash scripts/consistency.sh    # 四端 check / test / build + 黄金用例 + HMAC 向量
+bash scripts/build.sh          # 构建 JS / WASM / WASM-GC / Native 产物到 dist/
 ```
 
 | 层 | 内容 |
 | --- | --- |
 | L1 单元 | 校验器、路径、上下文、算子、JSON 解析 / 序列化、重叠消解 |
 | L2 集成 | 规则 JSON → IR → 执行端到端 |
-| L3 跨后端 | 同一套用例在 wasm / wasm-gc / js 编译并运行 |
-| L4 黄金 | `spec/test-cases/cases.json` 逐字节比对 + HMAC 标准向量 |
+| L3 跨后端 | 同一套用例在 wasm / wasm-gc / js / native 编译并运行 |
+| L4 黄金 | `spec/test-cases/cases.json` 逐字节比对（JS ESM + native CLI）+ HMAC 标准向量 |
 
 ## API 参考
 
@@ -327,7 +369,7 @@ veil/
 ├── cli/ js/ wasm/  三个入口包
 ├── rules/          base / cn / secrets / headers 四套规则
 ├── spec/           entities / validators / operators / schemas / test-cases
-├── scripts/        consistency / rules-lint / gen-spec / build
+├── scripts/        consistency / rules-lint / gen-spec / build / msvc-env
 ├── moon.mod        模块定义
 ├── README.md
 ├── CHANGELOG.md
@@ -338,13 +380,12 @@ veil/
 
 - **不做 NLP / ML 实体识别。** 自由文本里的人名、地址靠 `dictionary` + 上下文词 + 字段路径补偿，不保证召回。
 - **`field` 检测器与结构轨未接入默认路径。** v0.1 的 `redact` 只跑文本轨；字段级处理需显式调用 `redact_json_policy` / `redact_json_fields`，`rules/headers.json` 的字段规则暂不自动生效。
-- **CLI 未完成。** native 构建需 MSVC / clang；即使构建成功，文件读取与规则加载也未接入，当前只能用 JS / WASM 或 `@core`。
 - **`encrypt` 是占位实现。** 返回值是确定性 HMAC 令牌，不是 AES-GCM 密文；`crypto/Vault` 是进程内映射，跨进程不可 restore。
 - **`includes` 不自动合并。** 它是声明式元数据；需要按需加载多个规则文件并在调用方合并 detectors。
 - **正则是 lexmatch 子集。** 不支持 `\d` `\w` `\s` `\b`、lookahead、反向引用；换规则前先跑 `rules-lint.sh`。
 - **WASM 入口的错误处理偏弱。** `redact_text` 在规则加载失败时原样返回输入；生产环境应先在 JS / 构建期验证规则，或改用 MoonBit 层显式处理 `Result`。
 - **尚未发布。** mooncakes 与 npm registry 均未发布；包配置与类型声明已就位。
-- **Native 未在本机验证。** 本机缺 MSVC `cl.exe`；native 产物需在含 MSVC / clang 的环境补跑。
+- **Native 构建依赖本机工具链。** Windows 需 MSVC Build Tools（C++ 工作负载 + Windows SDK），Unix 需 clang；仓库不附带预编译二进制。
 
 ## 文档与示例
 

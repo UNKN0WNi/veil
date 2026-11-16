@@ -3,12 +3,7 @@ pkgtype(kind: "executable")
 
 import {
   "veil/core",
-  "veil/crypto",
   "moonbitlang/core/builtin",
-  "moonbitlang/core/string",
-  "moonbitlang/core/array",
-  "moonbitlang/core/buffer",
-  "moonbitlang/core/int",
-  "moonbitlang/core/json",
   "moonbitlang/core/env",
+  "moonbitlang/x/fs",
 }

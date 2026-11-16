@@ -2,7 +2,6 @@
 package "veil/cli"
 
 // Values
-pub fn run_cli(String, String, String, String, Bool) -> String
 
 // Errors
 

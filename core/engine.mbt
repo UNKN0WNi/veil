@@ -268,6 +268,10 @@ fn add_detection(
   if content.length() == 0 {
     return
   }
+  // validator 是硬过滤：任何检测器类型都必须在打分前通过校验。
+  if d.validator != "" && !validate(d.validator, content) {
+    return
+  }
   let delta = context_delta(text, start, end, d.context)
   let score = d.score + delta
   if score < min_score {

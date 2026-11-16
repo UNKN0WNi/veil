@@ -8,7 +8,9 @@
 | 源计划书 | `C:/Users/Administrator/Downloads/PLAN.md` |
 | 工具链 | `moon 0.1.20261104`（本机实测，位于 `.../2026-11-14-23-34-36/.tools/moonbit/bin`） |
 | 日期 | 2026-11-16 |
-| 状态 | 实施中 |
+| 状态 | S1–S6 完成；native 已补齐并验证 |
+
+> 2026-11-16 更新：已安装 MSVC Build Tools 2022 + Windows SDK 10.0.26100，`native` 构建、20 个单测与 native CLI 黄金用例全部通过。下文 S0 中"native 目标不可用"是初次预研时的环境结论，保留作历史记录；native 环境由 `scripts/msvc-env.sh` 自动导入。
 
 ---
 
@@ -18,7 +20,7 @@
 
 | 编号 | 验证项 | 实测结论 | 对计划的影响 |
 |---|---|---|---|
-| B0/B1 | 工具链与多后端 | `moon check/test` 在 **wasm / wasm-gc / js** 三后端可用；**native 目标不可用**（缺 MSVC `cl.exe`，VS2022 目录为空） | 一致性框架以三后端为准；native CLI 以源码交付，文档标注需 MSVC |
+| B0/B1 | 工具链与多后端 | `moon check/test` 在 **wasm / wasm-gc / js** 三后端可用；初次预研时 **native 目标不可用**（缺 MSVC `cl.exe`，VS2022 目录为空）；2026-11-16 已安装 MSVC 并补齐 native | 一致性框架覆盖四后端；native CLI 已构建并验证 |
 | B2 | HMAC-SHA256 一致性 | `@crypto.hmac(@crypto.SHA256::new(), k, m)` + `@crypto.bytes_to_hex_string`，三后端输出**逐字节一致**（`928bc0a4...051f6d80`） | **D3 决策：采用 `x/crypto` 内置 HMAC**，不自实现 |
 | B3 | 正则一致性 | `@string.Regex("...")` 三后端行为一致；但语法是 **lexmatch 子集**：`\d \w \s \b` **不支持**，须用 `[[:digit:]]` 等 POSIX 类；字符类末尾的 `-` 非法须写 `\-` | **D1 决策：用内置 regexp**；所有规则正则改写为 lexmatch 方言，lint 检查禁用语法 |
 | B4 | Map 顺序 | `core/json` 对象底层是 `Map`，顺序不保证；`@json.parse` 保留输入文本顺序仅因 stringify 走原始 token | 证实 **D7**：文本轨 + 自建有序 AST 是必需的，不能依赖 Map |
@@ -38,7 +40,7 @@
 | D7 | JSON 架构 | ✅ 文本轨为主 + 自建有序 AST（`Number(String)` + `Object(Array[...])`）为辅 |
 | D8 | 结构轨深度 | ✅ v0.1 做最小 AST：路径定位 + 整字段替换 + 确定性序列化 |
 | — | 金库 | v0.1 `tokenize`/`encrypt` 采用确定性 HMAC 令牌；AES-GCM 可逆金库延后 v1（无 GCM 原语） |
-| — | native 产物 | 源码+构建脚本交付；本机无 MSVC，CI/有 MSVC 环境可构建 |
+| — | native 产物 | ✅ 已用 MSVC Build Tools 2022 构建并验证；`scripts/msvc-env.sh` 自动导入 PATH / INCLUDE / LIB |
 
 ---
 
@@ -115,4 +117,4 @@ veil/
 
 ## 4. 一致性验收口径
 
-计划书要求"四端逐字节一致"。本机因缺 MSVC 只能跑 **wasm / wasm-gc / js** 三端；三端零差异即视为本地达标，native 产物由 CI（含 MSVC）按同一脚本验证。`spec/test-cases/cases.json` 中的固定密钥 HMAC 向量作为跨语言、跨后端的黄金基准。
+计划书要求"四端逐字节一致"。2026-11-16 补齐 MSVC 后，**wasm / wasm-gc / js / native** 四端均可构建并运行：20 个测试 × 4 后端全部通过，6 条黄金用例在 JS ESM 产物与 native CLI 上分别逐字节一致。`spec/test-cases/cases.json` 中的固定密钥 HMAC 向量作为跨语言、跨后端的黄金基准。

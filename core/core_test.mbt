@@ -80,6 +80,23 @@ test "json parse rejects duplicate keys" {
 }
 
 ///|
+test "pattern detector applies validator" {
+  let rules_json = "{\"version\":1,\"rules_version\":\"t.1\",\"defaults\":{\"action\":\"redact\",\"censor\":\"[REDACTED]\",\"min_score\":0.5},\"detectors\":[{\"id\":\"ipv6\",\"description\":\"ipv6\",\"type\":\"pattern\",\"pattern\":\"[0-9A-Fa-f:]{2,39}\",\"validator\":\"ipv6\",\"score\":0.6}],\"operators\":[{\"id\":\"default\",\"type\":\"redact\"}]}"
+  let rs = match load_ruleset(rules_json) {
+    Ok(v) => v
+    Err(_) => fail("load failed")
+  }
+  // "ac" 形似 IPv6 片段，但 validator 必须把它过滤掉。
+  let false_positive = redact("contact ac now", rs, EngineOptions::default())
+  assert_eq(false_positive.text, "contact ac now")
+  assert_eq(false_positive.report.matched_count, 0)
+  // 合法 IPv6 仍然命中。
+  let real = redact("addr 2001:db8::1", rs, EngineOptions::default())
+  assert_eq(real.text, "addr [REDACTED]")
+  assert_eq(real.report.matched_count, 1)
+}
+
+///|
 test "json get and set path" {
   match parse_json("{\"user\":{\"email\":\"a@b.com\"}}") {
     Err(_) => fail("parse failed")
