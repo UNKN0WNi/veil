@@ -259,6 +259,8 @@ A rule set is strict JSON (schema: [`spec/schemas/ruleset.schema.json`](./spec/s
 
 **Errors are fatal:** loading performs schema and semantic validation (duplicate ids, references to missing detectors or operators, invalid regex, missing `description`, and so on). Any invalid rule fails the whole rule set instead of silently skipping it. Semantics depend only on array order, never on object key order.
 
+**How to customise:** rule files carry their docs in `$schema` / `_comment` / `_how_to_customize` (all ignored by the loader), and per-field explanations live in the schema `description`, so editing a rule file in VS Code gives completion and inline hints. Field-by-field reference and recipes (cut false positives, raise recall, switch output form, whitelist paths) are in [`rules/README.md`](./rules/README.md).
+
 ## Output and audit
 
 The JS entry point returns single-line JSON:
@@ -431,11 +433,9 @@ veil/
 
 | Document | Content |
 | --- | --- |
-| [`rules/README.md`](./rules/README.md) | Built-in rule coverage, false-positive tuning, regex dialect |
+| [`rules/README.md`](./rules/README.md) | **Customisation guide**: field reference, common tweaks, false positives, regex dialect |
 | [`spec/schemas/ruleset.schema.json`](./spec/schemas/ruleset.schema.json) | Rule set JSON Schema |
 | [`spec/test-cases/cases.json`](./spec/test-cases/cases.json) | Cross-language golden cases |
-| [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) | Implementation plan and key trade-offs |
-| [`PLAN.md`](./PLAN.md) | Original plan document |
 | [`CHANGELOG.md`](./CHANGELOG.md) | Release history |
 
 ## Contributing

@@ -1,34 +1,42 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://veil-lang.github.io/schemas/testcase.schema.json",
-  "title": "veil cross-language test cases",
-  "description": "Language-neutral golden cases. Any implementation must produce the expected output byte-for-byte.",
+  "title": "veil 跨语言黄金用例",
+  "description": "语言无关的黄金用例：任何实现都必须逐字节产出 expected_output。改内核后跑 bash scripts/consistency.sh 会用这批用例校验四端一致性。",
   "type": "object",
   "required": ["version", "cases"],
+  "additionalProperties": true,
   "properties": {
-    "version": { "type": "integer", "const": 1 },
+    "$schema": { "type": "string", "description": "可选的 schema 相对路径，写上后编辑器会补全字段名。" },
+    "_comment": { "type": "string", "description": "可选，给人看的说明；脚本只读 cases 字段。" },
+    "version": { "type": "integer", "const": 1, "description": "用例格式版本，固定 1。" },
+    "spec_version": { "type": "string", "description": "对应的规范版本，如 2026.11.1，便于追溯用例属于哪版规范。" },
     "cases": {
       "type": "array",
+      "description": "用例列表，每条一个输入 + 一份规则集 + 期望输出。",
       "items": {
         "type": "object",
         "required": ["id", "input", "ruleset", "expected_output", "expected_matches"],
+        "additionalProperties": true,
         "properties": {
-          "id": { "type": "string" },
-          "description": { "type": "string" },
-          "input": { "type": "string" },
-          "ruleset": { "type": "object" },
-          "key": { "type": "string", "description": "fixed test key; empty means no key needed" },
-          "expected_output": { "type": "string" },
+          "id": { "type": "string", "description": "用例名，snake_case，失败时打印出来定位。" },
+          "description": { "type": "string", "description": "这条用例演示什么（可选，但强烈建议写）。" },
+          "input": { "type": "string", "description": "输入文本，按原样喂给 redact。" },
+          "ruleset": { "type": "object", "description": "内嵌的规则集对象，结构见 ruleset.schema.json；用例自带规则，避免依赖内置规则变动。" },
+          "key": { "type": "string", "description": "HMAC 用的固定测试密钥；不用哈希/令牌类算子就留空。" },
+          "expected_output": { "type": "string", "description": "期望输出，逐字节比对。" },
           "expected_matches": {
             "type": "array",
+            "description": "期望的命中列表，同时校验 count 与实体/算子，避免「输出碰巧一样」的假通过。",
             "items": {
               "type": "object",
               "required": ["entity", "operator"],
+              "additionalProperties": true,
               "properties": {
-                "entity": { "type": "string" },
-                "operator": { "type": "string" },
-                "start": { "type": "integer" },
-                "end": { "type": "integer" }
+                "entity": { "type": "string", "description": "命中的检测器 id。" },
+                "operator": { "type": "string", "description": "实际生效的算子类型。" },
+                "start": { "type": "integer", "description": "命中起点（字符下标，可选）。" },
+                "end": { "type": "integer", "description": "命中终点（字符下标，可选）。" }
               }
             }
           }

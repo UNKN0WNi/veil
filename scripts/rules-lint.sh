@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# rules-lint.sh — 内置规则集 lint（计划书 §7.2）
+# rules-lint.sh — 内置规则集 lint
 # 检查：JSON 合法 / 必填 description / id snake_case / 禁用正则语法。
 set -euo pipefail
 cd "$(dirname "$0")/.."

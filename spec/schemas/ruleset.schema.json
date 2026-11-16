@@ -1,97 +1,216 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://veil-lang.github.io/schemas/ruleset.schema.json",
-  "title": "veil ruleset",
-  "description": "Declarative PII redaction ruleset. Semantics depend ONLY on JSON array order, never on object key order.",
+  "title": "veil 规则集",
+  "description": "声明式脱敏规则集。语义只依赖 JSON 数组顺序，与对象键顺序无关。JSON 没有注释语法，因此用 _comment（字符串）和 _how_to_customize（字符串数组）写说明；加载器忽略这两个键，写在文件里不影响运行。",
   "type": "object",
   "required": ["version", "rules_version", "detectors"],
   "additionalProperties": true,
   "properties": {
-    "version": { "type": "integer", "const": 1 },
-    "rules_version": { "type": "string", "minLength": 1 },
-    "_comment": { "type": "string" },
+    "$schema": {
+      "type": "string",
+      "description": "可选。指向本 schema 的相对路径（如 ../spec/schemas/ruleset.schema.json）。写上之后 VS Code / JetBrains 会自动补全字段名并显示这里的说明文字。"
+    },
+    "_comment": {
+      "type": "string",
+      "description": "可选。一句话说明这份规则集管什么，给人看，加载器忽略。"
+    },
+    "_how_to_customize": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "可选。把「想改什么、改哪个字段」写成几条提示，方便下一个维护者；加载器忽略。"
+    },
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "规则格式版本，固定 1。只有格式升级时才变，日常不要改。"
+    },
+    "rules_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "规则内容版本，原样写进审计报告。改了规则就升一下（如 2026.11.2），便于回溯某次脱敏用的是哪版规则。"
+    },
     "defaults": {
       "type": "object",
+      "description": "所有检测器的默认值：检测器自己没写 action / score 时用这里的。",
       "properties": {
-        "action": { "type": "string", "enum": ["redact", "replace", "mask", "hash", "tokenize", "encrypt", "keep"] },
-        "censor": { "type": "string" },
-        "min_score": { "type": "number", "minimum": 0, "maximum": 1 }
+        "_comment": { "type": "string", "description": "可选，给人看的说明。" },
+        "action": {
+          "type": "string",
+          "enum": ["redact", "replace", "mask", "hash", "tokenize", "encrypt", "keep"],
+          "description": "默认算子。可以写算子类型（redact），也可以写 operators 里定义的 id（如 mask_email）。"
+        },
+        "censor": { "type": "string", "description": "redact 算子替换成的文本，默认 [REDACTED]。想换成 <hidden> 就改这里。" },
+        "min_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "命中阈值：最终分数 ≥ 该值才脱敏，默认 0.5。调大变保守（漏报多），调小变激进（误报多）。"
+        }
       },
       "additionalProperties": false
     },
     "detectors": {
       "type": "array",
+      "description": "检测器数组。顺序有意义：分数相同时靠前的先占位，与之重叠的后到命中会被丢弃。",
       "items": { "$ref": "#/$defs/detector" }
     },
     "operators": {
       "type": "array",
+      "description": "可选。自定义算子表，被检测器的 action 按 id 引用。最小可用写法：{ \"id\": \"default\", \"type\": \"redact\" }。",
       "items": { "$ref": "#/$defs/operator" }
     },
     "policy": {
       "type": "object",
+      "description": "结构轨（JSON 输入）的白名单策略，文本轨不受影响。",
       "properties": {
-        "mode": { "type": "string", "enum": ["deny_by_default", "allow_by_default"] },
-        "allow_paths": { "type": "array", "items": { "type": "string" } },
-        "ignore_paths": { "type": "array", "items": { "type": "string" } }
+        "_comment": { "type": "string", "description": "可选，给人看的说明。" },
+        "mode": {
+          "type": "string",
+          "enum": ["deny_by_default", "allow_by_default"],
+          "description": "allow_by_default：默认放行，只有命中检测器的字段才处理；deny_by_default：默认遮蔽，只放行 allow_paths（更安全，也更容易误伤正常字段）。"
+        },
+        "allow_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "明确放行的字段路径，如 request_id。支持 * 单层通配与 *.suffix 后缀通配。"
+        },
+        "ignore_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "跳过的字段路径：不扫描也不脱敏，如 trace_id。"
+        }
       },
       "additionalProperties": false
     },
     "formats": {
       "type": "array",
+      "description": "声明这份规则适用的输入形态，仅作元数据与文档用途。",
       "items": { "type": "string", "enum": ["json", "logfmt", "plain", "http_headers"] }
     },
-    "includes": { "type": "array", "items": { "type": "string" } }
+    "includes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "组合声明：列出想一起用的其他规则文件路径。当前仅作元数据，加载器不会自动合并——需要合并时由调用方分别 load 后拼接 detectors。"
+    }
   },
   "$defs": {
     "detector": {
       "type": "object",
       "required": ["id", "description", "type"],
+      "additionalProperties": true,
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "snake_case, globally unique" },
-        "description": { "type": "string", "minLength": 1, "description": "Required: coverage, typical false positives, tuning advice" },
-        "type": { "type": "string", "enum": ["pattern", "dictionary", "field", "composite", "checksum"] },
-        "pattern": { "type": "string", "description": "lexmatch regex dialect; \\d \\w \\s \\b forbidden" },
-        "flags": { "type": "string" },
-        "terms": { "type": "array", "items": { "type": "string" } },
-        "targets": { "type": "array", "items": { "type": "string" } },
-        "detectors": { "type": "array", "items": { "type": "string" } },
-        "validator": { "type": "string" },
-        "score": { "type": "number", "minimum": 0, "maximum": 1 },
-        "action": { "type": "string" },
-        "replacement": { "type": "string" },
-        "case_sensitive": { "type": "boolean" },
-        "context": {
-          "type": "object",
-          "properties": {
-            "words": { "type": "array", "items": { "type": "string" } },
-            "anti_words": { "type": "array", "items": { "type": "string" } },
-            "window": { "type": "integer", "minimum": 0 },
-            "boost": { "type": "number" },
-            "penalty": { "type": "number" },
-            "case_sensitive": { "type": "boolean" }
-          },
-          "additionalProperties": false
-        }
+        "_comment": { "type": "string", "description": "可选，给人看的说明。" },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "必填。小写 snake_case，全局唯一；会出现在输出报告的命名字段里，便于统计。"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "必填。写清三件事：管什么、典型误报、想调紧或调松该改哪个字段。rules-lint 会检查它不能为空。"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["pattern", "dictionary", "field", "composite", "checksum"],
+          "description": "必填。pattern=正则扫描；checksum=正则+校验位（等价于 pattern 带 validator）；dictionary=词典整词匹配；composite=由其他检测器拼装；field=按字段路径定位（结构轨）。"
+        },
+        "pattern": {
+          "type": "string",
+          "description": "type=pattern / checksum 时用。只能写 lexmatch 方言：禁止 \\d \\w \\s \\b，改用 [[:digit:]] 等 POSIX 类；字符类里的字面 - 写成 \\-；不支持 lookahead 与反向引用。改完跑 bash scripts/rules-lint.sh。"
+        },
+        "extract": {
+          "type": "string",
+          "description": "可选。pattern 的别名，二选一即可（同时存在时以 extract 为准）。"
+        },
+        "flags": { "type": "string", "description": "可选。正则标志位，如 i 表示忽略大小写；也可以改用 case_sensitive。" },
+        "terms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "type=dictionary 时用。要匹配的词表，逐个做子串匹配。"
+        },
+        "targets": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "type=field 时用。字段路径列表，如 http.request.header.authorization 或 *.password（* 单层通配）。"
+        },
+        "detectors": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "type=composite 时用。引用的其他检测器 id，命中结果合并。"
+        },
+        "validator": {
+          "type": "string",
+          "description": "可选。命中后再过一遍算法校验，不通过就丢弃——降误报最有效的一招。可用值：luhn / cn_id_checksum / cn_bank_card_checksum / cn_uscc_checksum / isbn / imei / ipv4 / ipv6 / base64 / jwt。"
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "基础分（0-1），与上下文加减分相加后同 min_score 比较。确定度高的（身份证、AWS key）给 0.9 以上；裸数字这类歧义大的给 0.3 左右，靠 context 提分。"
+        },
+        "action": {
+          "type": "string",
+          "description": "可选。这条规则用哪个算子：写类型（redact/replace/mask/hash/tokenize/encrypt/keep）或 operators 里的 id（如 mask_email）。不写则用 defaults.action。"
+        },
+        "replacement": { "type": "string", "description": "可选。action=replace 时的替换文本。" },
+        "case_sensitive": { "type": "boolean", "description": "可选。dictionary 匹配是否区分大小写，默认 false。" },
+        "context": { "$ref": "#/$defs/context" }
+      }
+    },
+    "context": {
+      "type": "object",
+      "description": "上下文打分：看命中位置前后 window 个字符内有没有相关词，有就加分、有反向词就减分。专门用来救「裸数字」这类歧义命中。",
+      "properties": {
+        "_comment": { "type": "string", "description": "可选，给人看的说明。" },
+        "words": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "加分词表，如 手机 / phone / 联系方式。同一个命中命中多个词也只加一次，保证确定性。"
+        },
+        "anti_words": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "减分词表，如 订单号 / order_id。命中后扣 penalty，用来压误报。"
+        },
+        "window": { "type": "integer", "minimum": 0, "description": "上下文窗口大小（字符数），默认 24。" },
+        "boost": { "type": "number", "description": "命中加分词时加多少分，如 0.45；加到 score 上再与 min_score 比较。" },
+        "penalty": { "type": "number", "description": "命中减分词时扣多少分。" },
+        "case_sensitive": { "type": "boolean", "description": "上下文词是否区分大小写，默认 false。" }
       },
-      "additionalProperties": true
+      "additionalProperties": false
     },
     "operator": {
       "type": "object",
       "required": ["id", "type"],
+      "additionalProperties": true,
       "properties": {
-        "id": { "type": "string" },
-        "type": { "type": "string", "enum": ["redact", "replace", "mask", "hash", "tokenize", "encrypt", "keep"] },
-        "replacement": { "type": "string" },
+        "_comment": { "type": "string", "description": "可选，给人看的说明。" },
+        "id": { "type": "string", "description": "必填。算子名，被检测器的 action 引用，如 mask_email。" },
+        "type": {
+          "type": "string",
+          "enum": ["redact", "replace", "mask", "hash", "tokenize", "encrypt", "keep"],
+          "description": "必填。redact=整体替换成 censor；replace=替换成 replacement；mask=保留首尾若干字符、其余打码；hash=哈希摘要；tokenize=HMAC 确定性假名；encrypt=可逆占位（当前为占位实现）；keep=显式放行不改。"
+        },
+        "replacement": { "type": "string", "description": "type=replace 时的替换文本。" },
         "keep": {
           "type": "object",
-          "properties": { "prefix": { "type": "integer", "minimum": 0 }, "suffix": { "type": "integer", "minimum": 0 } }
+          "description": "type=mask 时用。保留原值开头/结尾各几个字符。",
+          "properties": {
+            "prefix": { "type": "integer", "minimum": 0, "description": "保留开头字符数，如 1 表示 a***。" },
+            "suffix": { "type": "integer", "minimum": 0, "description": "保留结尾字符数，如 4 表示 ****1234。" }
+          }
         },
-        "fill": { "type": "string" },
-        "prefix": { "type": "string" },
-        "length": { "type": "integer", "minimum": 0 },
-        "algo": { "type": "string", "enum": ["sha256", "hmac_sha256", "aes_gcm"] }
-      },
-      "additionalProperties": true
+        "fill": { "type": "string", "description": "type=mask 的打码字符，默认 *。" },
+        "prefix": { "type": "string", "description": "type=hash / tokenize 时给结果加的前缀，如 h_。" },
+        "length": { "type": "integer", "minimum": 0, "description": "type=hash / tokenize 输出保留多少位十六进制字符，如 12。" },
+        "algo": {
+          "type": "string",
+          "enum": ["sha256", "hmac_sha256", "aes_gcm"],
+          "description": "type=hash 的摘要算法。低熵值（邮箱、手机号）请用 hmac_sha256，避免裸 SHA-256 被彩虹表反查。"
+        }
+      }
     }
   }
 }

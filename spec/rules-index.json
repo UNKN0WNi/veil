@@ -1,4 +1,5 @@
 {
+  "_comment": "由 scripts/gen-spec.sh 从 rules/*.json 生成，请勿手改；改了规则重跑脚本即可。",
   "version": 1,
   "spec_version": "2026.11.1",
   "rules": [

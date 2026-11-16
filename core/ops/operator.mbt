@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 内置算子（计划书 §4.5）：
+// 内置算子：
 // redact / replace / mask / hash / tokenize / encrypt / keep。
 // 全部确定性（相同输入+密钥 → 相同输出），四后端字节一致。
 
@@ -18,7 +18,7 @@ fn bytes_to_hex(bytes : FixedArray[Byte]) -> String {
 }
 
 ///|
-/// HMAC-SHA256 → hex（四后端字节一致，S0 已验证）。
+/// HMAC-SHA256 → hex（四后端字节一致）。
 pub fn hmac_sha256_hex(key : String, message : String) -> String {
   let mac = @crypto.hmac(
     @crypto.SHA256::new(),

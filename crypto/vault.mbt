@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 可逆金库（计划书 §4.5 encrypt / tokenize + vault）：
+// 可逆金库（encrypt / tokenize + vault）：
 // 确定性 token ↔ 原值映射。v0.1 用内存映射（token = HMAC(key, value)），
 // 同一 value 恒定映射到同一 token；restore 查映射表。
 // 注意：映射表是进程内状态，四后端一致性仅保证 token 生成，不保证跨进程 restore。

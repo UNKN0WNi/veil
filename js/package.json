@@ -1,15 +1,21 @@
 {
+  "//": "JSON 没有注释语法，npm 约定用 // 开头的键承载说明：构建脚本会忽略它们。",
   "name": "@veil-lang/veil",
   "version": "0.1.0",
+  "//version": "版本号需与根目录 moon.mod 的 version 保持一致。",
   "description": "Cross-platform PII & log redaction kernel: one declarative JSON ruleset, byte-identical across backends",
+  "//type": "type=module 表示 veil.js 是 ESM；用法是 import * as veil from '@veil-lang/veil'。",
   "type": "module",
   "main": "veil.js",
+  "//main": "veil.js 由 ../scripts/build.sh 从 MoonBit 源码生成，不要手改；重新构建会覆盖它。",
   "types": "veil.d.ts",
   "files": ["veil.js", "veil.d.ts", "README.md"],
+  "//files": "npm publish 只打包这几个文件，避免把 _build/ 之类构建中间产物发出去。",
   "license": "Apache-2.0",
   "repository": { "type": "git", "url": "https://github.com/UNKN0WNi/veil" },
   "keywords": ["pii", "redaction", "masking", "privacy", "log-scrubbing", "moonbit"],
   "scripts": {
+    "//": "这两个命令都需要本机已装 MoonBit 工具链（见根目录 README 的快速开始）。",
     "build": "../scripts/build.sh",
     "test": "../scripts/consistency.sh"
   },

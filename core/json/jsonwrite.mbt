@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 确定性 JSON 序列化（计划书 §5.3）：
+// 确定性 JSON 序列化：
 // - 按 Object 数组下标输出（保序）
 // - Number 直接输出原文（保精度）
 // - 字符串按 JSON 规范转义，四后端一致

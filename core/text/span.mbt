@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// Span / Detected / 重叠消解。四后端共享的纯函数（计划书 §4.7）。
+// Span / Detected / 重叠消解。四后端共享的纯函数。
 
 ///|
 /// 命中片段在原始文本中的区间（字符偏移，[start, end)）。
@@ -86,7 +86,7 @@ fn cmp_detection(a : Detected, b : Detected) -> Int32 {
 }
 
 ///|
-/// 确定性重叠消解（计划书 §4.7）：
+/// 确定性重叠消解：
 /// 1. 分数高者优先；2. 同分 → 检测器声明顺序在前者优先；
 /// 3. 完全包含时长 span 优先；4. 部分重叠取分数高者，另一方裁剪。
 /// 返回保留的命中，按 start 升序（便于文本轨区间替换）。

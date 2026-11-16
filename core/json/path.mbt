@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 结构化路径匹配（计划书 §4.8）：精确 / 单层通配 `*` / 前缀通配 `*.suffix`。
+// 结构化路径匹配：精确 / 单层通配 `*` / 前缀通配 `*.suffix`。
 
 ///|
 /// 按 `.` 分割路径为段数组。

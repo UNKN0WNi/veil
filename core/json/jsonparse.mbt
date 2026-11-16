@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 自建有序 JSON 解析器（计划书 §5.3）：
+// 自建有序 JSON 解析器：
 // - 保序：Object 用 Array[(String, JsonValue)]，插入顺序即输出顺序
 // - 保数字原文：Number(String)，不转 Double
 // - 拒重复键：key smuggling 防护（R2'''）

@@ -259,6 +259,8 @@ Windows Git Bash 下 `scripts/build.sh` 会自动导入 MSVC 环境；也可手�
 
 **错误即失败：** 规则加载做 schema + 语义校验（id 重复、引用不存在的 detector / operator、非法正则、缺 `description`……），任一条非法则整个规则集加载失败，不静默跳过。规则语义只依赖数组顺序，不依赖对象键顺序。
 
+**怎么改：** 规则文件里用 `$schema` / `_comment` / `_how_to_customize` 承载说明（加载器忽略这三个键），字段级解释写在 schema 的 `description` 里，用 VS Code 打开规则文件就有补全和提示。完整的字段速查与常见调整配方（降误报、提召回、换输出形态、白名单）见 [`rules/README.md`](./rules/README.md)。
+
 ## 输出与审计
 
 JS 入口返回单行 JSON：
@@ -432,11 +434,9 @@ veil/
 | 文档 | 内容 |
 | --- | --- |
 | [`README.en.md`](./README.en.md) | English version of this document |
-| [`rules/README.md`](./rules/README.md) | 内置规则覆盖范围、误报调整、正则方言 |
+| [`rules/README.md`](./rules/README.md) | **自定义规则指南**：字段速查、常见调整配方、误报处理、正则方言 |
 | [`spec/schemas/ruleset.schema.json`](./spec/schemas/ruleset.schema.json) | 规则集 JSON Schema |
 | [`spec/test-cases/cases.json`](./spec/test-cases/cases.json) | 跨语言黄金用例 |
-| [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) | 实施计划与关键取舍 |
-| [`PLAN.md`](./PLAN.md) | 原始计划书 |
 | [`CHANGELOG.md`](./CHANGELOG.md) | 版本变更 |
 
 ## 贡献

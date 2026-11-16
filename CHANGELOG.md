@@ -6,7 +6,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Removed
+- Internal planning documents (`PLAN.md`, `IMPLEMENTATION_PLAN.md`) and the
+  competition proposal are no longer part of the repository; references to
+  plan sections were stripped from source comments and scripts.
+
 ### Added
+- Rule files now document themselves in-band: `$schema` (editor completion and
+  hover hints), `_comment` on the top level, `defaults`, `operators[]` and
+  `policy`, and `_how_to_customize` with task-oriented hints. All three keys
+  are ignored by the loader.
+- `spec/schemas/ruleset.schema.json` and `testcase.schema.json` now carry a
+  Chinese `description` on every property, so editing a rule file shows what
+  each field means and what to change.
+- `rules/README.md` rewritten as a customisation guide: a 30-second minimal
+  rule set, field reference tables, recipes for false positives / recall /
+  output form / whitelists, regex-dialect pitfalls, and an English field
+  reference appendix.
+- `moon.mod` and `js/package.json` explain each field in plain language
+  (`js/package.json` uses the npm `//`-prefixed key convention).
 - `core` is now split into dependency-ordered subpackages: `json`, `text`,
   `rules`, `detect`, `ops`, `validate`, `structure`, with `veil/core` acting as
   a facade that re-exports the public API unchanged.

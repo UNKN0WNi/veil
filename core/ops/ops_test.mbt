@@ -22,7 +22,7 @@ test "operator mask hash tokenize determinism" {
 
 ///|
 test "hmac sha256 known vector" {
-  // HMAC-SHA256(key="secret-key", msg="hello@example.com") — S0 四端黄金向量（UTF-8，跨语言标准）
+  // HMAC-SHA256(key="secret-key", msg="hello@example.com") — 四端黄金向量（UTF-8，跨语言标准）
   assert_eq(
     @ops.hmac_sha256_hex("secret-key", "hello@example.com"),
     "928bc0a4262ca7746556831aee52ee3edfb53b2efd95c57a8f4d1efd051f6d80",

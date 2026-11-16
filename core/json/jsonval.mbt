@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 有序 JSON 值类型（计划书 §5.3）：
+// 有序 JSON 值类型：
 // - Number(String) 保留数字原文，避免大整数精度丢失
 // - Object(Array[(String, JsonValue)]) 保留键插入顺序
 // 这是自研最小 AST，结构轨与规则集加载共用同一套表示。

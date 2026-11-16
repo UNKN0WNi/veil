@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 上下文打分（计划书 §4.6）：
+// 上下文打分：
 //   final_score = base + (命中上下文词 ? boost) - (命中反上下文词 ? penalty)
 // 同一命中多个上下文词不叠加（取最高 boost），保证确定性。
 

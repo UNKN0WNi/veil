@@ -1,8 +1,8 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 确定性令牌（计划书 §4.5 tokenize）：HMAC-SHA256(key, value)。
-// 四后端字节一致（S0 已验证）；密钥只从调用方注入，绝不入配置/日志。
+// 确定性令牌（tokenize 算子）：HMAC-SHA256(key, value)。
+// 四后端字节一致（已逐端验证）；密钥只从调用方注入，绝不入配置/日志。
 
 ///|
 /// 字节数组 → hex（内部）。
@@ -45,7 +45,7 @@ pub fn tokenize(
 }
 
 ///|
-/// SHA-256 → hex（仅用于高熵值；低熵值请用 hmac_sha256_hex，见 §6.3）。
+/// SHA-256 → hex（仅用于高熵值；低熵值请用 hmac_sha256_hex，见 README「低熵值不裸哈希」）。
 pub fn sha256_hex(value : String) -> String {
   @xcrypto.bytes_to_hex_string(@xcrypto.sha256(@encoding.encode(UTF8, value)))
 }

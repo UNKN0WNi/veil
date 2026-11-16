@@ -1,6 +1,6 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
-// core 集成测试（计划书 §7.1 L2）：规则 JSON → IR → 检测 → 消解 → 算子 → 文本。
+// core 集成测试（L2 层）：规则 JSON → IR → 检测 → 消解 → 算子 → 文本。
 // 各子包的单元测试放在对应包内（validate / json / text / detect / ops）。
 
 ///|

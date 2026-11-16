@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 执行引擎（计划书 §5.4）——只做编排，不实现检测与算子：
+// 执行引擎——只做编排，不实现检测与算子：
 // ① 值级扫描（@detect）→ ② 重叠消解（@text）
 // → ③ 执行算子（@ops）→ ④ 文本轨区间替换 → ⑤ 审计报告（绝不含原文）。
 

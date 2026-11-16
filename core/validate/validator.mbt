@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 内置校验器（计划书 §4.4）：对候选片段做算法级校验以降误报。
+// 内置校验器：对候选片段做算法级校验以降误报。
 // 全部为纯函数，四后端一致。
 
 ///|

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# consistency.sh — 跨后端逐字节一致性验证（计划书 §7.2 / S4）
+# consistency.sh — 跨后端逐字节一致性验证
 # 用法：bash scripts/consistency.sh [targets...]
 #   默认 targets = wasm wasm-gc js native
 # 原理：同一套 spec/test-cases/cases.json，在每个后端编译产物上运行（若可运行），

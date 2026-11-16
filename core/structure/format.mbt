@@ -1,7 +1,7 @@
 // Copyright 2026 veil contributors
 // SPDX-License-Identifier: Apache-2.0
 //
-// 格式适配（计划书 §5.1 format.mbt）：json / logfmt / plain / http_headers。
+// 格式适配：json / logfmt / plain / http_headers。
 // 文本轨为主：值级脱敏已在 engine 完成（不改原文结构）。
 // 本模块提供：格式探测 + JSON 结构轨（fail-closed + 整字段替换）。
 
@@ -42,7 +42,7 @@ pub fn format_name(f : InputFormat) -> String {
 }
 
 ///|
-/// JSON 结构轨：fail-closed 白名单过滤（计划书 §4.8）。
+/// JSON 结构轨：fail-closed 白名单过滤。
 /// deny_by_default：只保留 allow_paths 命中的键，其余删除；ignore_paths 豁免。
 /// 输入必须是合法 JSON；非法则返回 Err（不静默跳过）。
 pub fn redact_json_policy(
