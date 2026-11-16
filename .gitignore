@@ -1,0 +1,16 @@
+# MoonBit build outputs
+_build/
+.mooncakes/
+target/
+dist/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local secrets — never commit keys
+.env
+*.key

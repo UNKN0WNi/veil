@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://veil-lang.github.io/schemas/ruleset.schema.json",
+  "title": "veil ruleset",
+  "description": "Declarative PII redaction ruleset. Semantics depend ONLY on JSON array order, never on object key order.",
+  "type": "object",
+  "required": ["version", "rules_version", "detectors"],
+  "additionalProperties": true,
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "rules_version": { "type": "string", "minLength": 1 },
+    "_comment": { "type": "string" },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "action": { "type": "string", "enum": ["redact", "replace", "mask", "hash", "tokenize", "encrypt", "keep"] },
+        "censor": { "type": "string" },
+        "min_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "detectors": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/detector" }
+    },
+    "operators": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/operator" }
+    },
+    "policy": {
+      "type": "object",
+      "properties": {
+        "mode": { "type": "string", "enum": ["deny_by_default", "allow_by_default"] },
+        "allow_paths": { "type": "array", "items": { "type": "string" } },
+        "ignore_paths": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "formats": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["json", "logfmt", "plain", "http_headers"] }
+    },
+    "includes": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "detector": {
+      "type": "object",
+      "required": ["id", "description", "type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "snake_case, globally unique" },
+        "description": { "type": "string", "minLength": 1, "description": "Required: coverage, typical false positives, tuning advice" },
+        "type": { "type": "string", "enum": ["pattern", "dictionary", "field", "composite", "checksum"] },
+        "pattern": { "type": "string", "description": "lexmatch regex dialect; \\d \\w \\s \\b forbidden" },
+        "flags": { "type": "string" },
+        "terms": { "type": "array", "items": { "type": "string" } },
+        "targets": { "type": "array", "items": { "type": "string" } },
+        "detectors": { "type": "array", "items": { "type": "string" } },
+        "validator": { "type": "string" },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "action": { "type": "string" },
+        "replacement": { "type": "string" },
+        "case_sensitive": { "type": "boolean" },
+        "context": {
+          "type": "object",
+          "properties": {
+            "words": { "type": "array", "items": { "type": "string" } },
+            "anti_words": { "type": "array", "items": { "type": "string" } },
+            "window": { "type": "integer", "minimum": 0 },
+            "boost": { "type": "number" },
+            "penalty": { "type": "number" },
+            "case_sensitive": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    },
+    "operator": {
+      "type": "object",
+      "required": ["id", "type"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["redact", "replace", "mask", "hash", "tokenize", "encrypt", "keep"] },
+        "replacement": { "type": "string" },
+        "keep": {
+          "type": "object",
+          "properties": { "prefix": { "type": "integer", "minimum": 0 }, "suffix": { "type": "integer", "minimum": 0 } }
+        },
+        "fill": { "type": "string" },
+        "prefix": { "type": "string" },
+        "length": { "type": "integer", "minimum": 0 },
+        "algo": { "type": "string", "enum": ["sha256", "hmac_sha256", "aes_gcm"] }
+      },
+      "additionalProperties": true
+    }
+  }
+}

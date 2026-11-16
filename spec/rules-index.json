@@ -1,0 +1,134 @@
+{
+  "version": 1,
+  "spec_version": "2026.11.1",
+  "rules": [
+    {
+      "id": "email",
+      "type": "pattern",
+      "source": "rules/base.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.9
+    },
+    {
+      "id": "url_with_credentials",
+      "type": "pattern",
+      "source": "rules/base.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.85
+    },
+    {
+      "id": "ipv4",
+      "type": "pattern",
+      "source": "rules/base.json",
+      "validator": "ipv4",
+      "action": "redact",
+      "score": 0.7
+    },
+    {
+      "id": "ipv6",
+      "type": "pattern",
+      "source": "rules/base.json",
+      "validator": "ipv6",
+      "action": "redact",
+      "score": 0.6
+    },
+    {
+      "id": "jwt",
+      "type": "pattern",
+      "source": "rules/base.json",
+      "validator": "jwt",
+      "action": "redact",
+      "score": 0.9
+    },
+    {
+      "id": "cn_id_card",
+      "type": "pattern",
+      "source": "rules/cn.json",
+      "validator": "cn_id_checksum",
+      "action": "redact",
+      "score": 0.95
+    },
+    {
+      "id": "cn_phone",
+      "type": "pattern",
+      "source": "rules/cn.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.35
+    },
+    {
+      "id": "cn_bank_card",
+      "type": "pattern",
+      "source": "rules/cn.json",
+      "validator": "cn_bank_card_checksum",
+      "action": "redact",
+      "score": 0.9
+    },
+    {
+      "id": "cn_uscc",
+      "type": "pattern",
+      "source": "rules/cn.json",
+      "validator": "cn_uscc_checksum",
+      "action": "redact",
+      "score": 0.85
+    },
+    {
+      "id": "sensitive_headers",
+      "type": "field",
+      "source": "rules/headers.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.5
+    },
+    {
+      "id": "secret_fields",
+      "type": "field",
+      "source": "rules/headers.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.5
+    },
+    {
+      "id": "aws_access_key",
+      "type": "pattern",
+      "source": "rules/secrets.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.95
+    },
+    {
+      "id": "github_token",
+      "type": "pattern",
+      "source": "rules/secrets.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.95
+    },
+    {
+      "id": "private_key",
+      "type": "pattern",
+      "source": "rules/secrets.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.95
+    },
+    {
+      "id": "slack_token",
+      "type": "pattern",
+      "source": "rules/secrets.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.9
+    },
+    {
+      "id": "generic_api_key",
+      "type": "pattern",
+      "source": "rules/secrets.json",
+      "validator": "",
+      "action": "redact",
+      "score": 0.3
+    }
+  ]
+}

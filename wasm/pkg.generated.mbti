@@ -1,0 +1,17 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/wasm"
+
+// Values
+pub fn redact_text(String, String, String) -> String
+
+pub fn tokenize(String, String, String, Int32) -> String
+
+pub fn version() -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

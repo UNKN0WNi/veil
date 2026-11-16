@@ -1,0 +1,17 @@
+{
+  "name": "@veil-lang/veil",
+  "version": "0.1.0",
+  "description": "Cross-platform PII & log redaction kernel: one declarative JSON ruleset, byte-identical across backends",
+  "type": "module",
+  "main": "veil.js",
+  "types": "veil.d.ts",
+  "files": ["veil.js", "veil.d.ts", "README.md"],
+  "license": "Apache-2.0",
+  "repository": { "type": "git", "url": "https://github.com/veil-lang/veil" },
+  "keywords": ["pii", "redaction", "masking", "privacy", "log-scrubbing", "moonbit"],
+  "scripts": {
+    "build": "../scripts/build.sh",
+    "test": "../scripts/consistency.sh"
+  },
+  "engines": { "node": ">=18" }
+}

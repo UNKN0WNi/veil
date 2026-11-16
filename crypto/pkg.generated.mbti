@@ -1,0 +1,28 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/crypto"
+
+// Values
+pub fn hmac_sha256_hex(String, String) -> String
+
+pub fn sha256_hex(String) -> String
+
+pub fn tokenize(String, String, String, Int32) -> String
+
+// Errors
+
+// Types and methods
+pub(all) struct Vault {
+  mut entries : Array[VaultEntry]
+  mut key : String
+  mut prefix : String
+}
+pub fn Vault::new(String) -> Self
+pub fn Vault::restore(Self, String) -> String?
+pub fn Vault::seal(Self, String) -> String
+pub fn Vault::size(Self) -> Int32
+
+type VaultEntry
+
+// Type aliases
+
+// Traits

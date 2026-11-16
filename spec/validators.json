@@ -1,0 +1,17 @@
+{
+  "_comment": "语言无关校验器行为定义。每个实现须按此实现，保证跨语言一致。",
+  "version": 1,
+  "spec_version": "2026.11.1",
+  "validators": [
+    { "id": "luhn", "name": "Luhn checksum", "applies_to": ["credit_card", "bank_card"], "algorithm": "ISO/IEC 7812 Luhn mod 10" },
+    { "id": "cn_id_checksum", "name": "China ID checksum", "applies_to": ["cn_id_card"], "algorithm": "GB 11643 weighted mod 11, charset 10X98765432" },
+    { "id": "cn_bank_card_checksum", "name": "China bank card checksum", "applies_to": ["cn_bank_card"], "algorithm": "Luhn over 13-19 digits" },
+    { "id": "cn_uscc_checksum", "name": "Unified Social Credit Code checksum", "applies_to": ["cn_uscc"], "algorithm": "GB 32100 charset-weighted mod 31" },
+    { "id": "isbn", "name": "ISBN-10/13 checksum", "applies_to": ["isbn"], "algorithm": "ISBN-10 mod 11 / ISBN-13 mod 10" },
+    { "id": "imei", "name": "IMEI checksum", "applies_to": ["imei"], "algorithm": "15-digit Luhn" },
+    { "id": "ipv4", "name": "IPv4 validator", "applies_to": ["ipv4"], "algorithm": "4 octets 0-255" },
+    { "id": "ipv6", "name": "IPv6 validator", "applies_to": ["ipv6"], "algorithm": "up to 8 hex groups, at most one ::" },
+    { "id": "base64", "name": "Base64 shape", "applies_to": ["base64_secret"], "algorithm": "length % 4 == 0, charset + padding <= 2" },
+    { "id": "jwt", "name": "JWT structure", "applies_to": ["jwt"], "algorithm": "3 base64url segments, header starts eyJ" }
+  ]
+}

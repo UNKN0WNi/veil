@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://veil-lang.github.io/schemas/testcase.schema.json",
+  "title": "veil cross-language test cases",
+  "description": "Language-neutral golden cases. Any implementation must produce the expected output byte-for-byte.",
+  "type": "object",
+  "required": ["version", "cases"],
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "input", "ruleset", "expected_output", "expected_matches"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "input": { "type": "string" },
+          "ruleset": { "type": "object" },
+          "key": { "type": "string", "description": "fixed test key; empty means no key needed" },
+          "expected_output": { "type": "string" },
+          "expected_matches": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["entity", "operator"],
+              "properties": {
+                "entity": { "type": "string" },
+                "operator": { "type": "string" },
+                "start": { "type": "integer" },
+                "end": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

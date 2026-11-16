@@ -1,0 +1,23 @@
+{
+  "_comment": "语言无关实体定义（单一事实来源）。其他语言实现可直接消费。version 1, veil 0.1。",
+  "version": 1,
+  "spec_version": "2026.11.1",
+  "entities": [
+    { "id": "email", "name": "Email address", "description": "Standard email address", "default_operator": "redact", "default_score": 0.9, "category": "contact" },
+    { "id": "url_with_credentials", "name": "URL with embedded credentials", "default_operator": "redact", "default_score": 0.85, "category": "secret" },
+    { "id": "ipv4", "name": "IPv4 address", "default_operator": "redact", "default_score": 0.7, "category": "network" },
+    { "id": "ipv6", "name": "IPv6 address", "default_operator": "redact", "default_score": 0.6, "category": "network" },
+    { "id": "jwt", "name": "JSON Web Token", "default_operator": "redact", "default_score": 0.9, "category": "secret" },
+    { "id": "cn_id_card", "name": "China Resident ID card", "default_operator": "redact", "default_score": 0.95, "category": "government_id", "validator": "cn_id_checksum" },
+    { "id": "cn_phone", "name": "China mobile number", "default_operator": "redact", "default_score": 0.35, "category": "contact", "context_required": true },
+    { "id": "cn_bank_card", "name": "China bank card", "default_operator": "mask", "default_score": 0.9, "category": "financial", "validator": "cn_bank_card_checksum" },
+    { "id": "cn_uscc", "name": "China Unified Social Credit Code", "default_operator": "redact", "default_score": 0.85, "category": "government_id", "validator": "cn_uscc_checksum" },
+    { "id": "aws_access_key", "name": "AWS Access Key ID", "default_operator": "redact", "default_score": 0.95, "category": "secret" },
+    { "id": "github_token", "name": "GitHub PAT", "default_operator": "redact", "default_score": 0.95, "category": "secret" },
+    { "id": "private_key", "name": "PEM private key", "default_operator": "redact", "default_score": 0.95, "category": "secret" },
+    { "id": "slack_token", "name": "Slack API token", "default_operator": "redact", "default_score": 0.9, "category": "secret" },
+    { "id": "generic_api_key", "name": "Generic API key/secret", "default_operator": "redact", "default_score": 0.3, "category": "secret", "context_required": true },
+    { "id": "sensitive_headers", "name": "Sensitive HTTP headers", "default_operator": "redact", "default_score": 1.0, "category": "field" },
+    { "id": "secret_fields", "name": "Common secret field paths", "default_operator": "redact", "default_score": 1.0, "category": "field" }
+  ]
+}

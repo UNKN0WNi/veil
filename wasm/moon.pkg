@@ -1,0 +1,7 @@
+// wasm / wasm-gc 产物：边缘 & 浏览器入口。
+import {
+  "veil/core",
+  "veil/crypto",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/string",
+}

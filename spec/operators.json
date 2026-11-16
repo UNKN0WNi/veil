@@ -1,0 +1,14 @@
+{
+  "_comment": "语言无关算子定义。reversible/deterministic 是实现须满足的语义属性。",
+  "version": 1,
+  "spec_version": "2026.11.1",
+  "operators": [
+    { "id": "redact", "name": "Replace with censor", "reversible": false, "deterministic": true, "parameters": ["censor"] },
+    { "id": "replace", "name": "Fixed replacement", "reversible": false, "deterministic": true, "parameters": ["replacement"] },
+    { "id": "mask", "name": "Keep prefix/suffix, fill middle", "reversible": false, "deterministic": true, "parameters": ["keep.prefix", "keep.suffix", "fill"] },
+    { "id": "hash", "name": "SHA-256 or HMAC-SHA256 digest", "reversible": false, "deterministic": true, "parameters": ["algo", "prefix", "length"], "note": "UTF-8 encoding; low-entropy values MUST use hmac_sha256" },
+    { "id": "tokenize", "name": "Deterministic HMAC token", "reversible": false, "deterministic": true, "parameters": ["prefix", "length"], "note": "HMAC-SHA256(key, value), UTF-8" },
+    { "id": "encrypt", "name": "Reversible vault token", "reversible": true, "deterministic": true, "parameters": ["prefix"], "note": "v0.1 in-memory token vault; AES-GCM planned v1" },
+    { "id": "keep", "name": "Allowlist exemption", "reversible": true, "deterministic": true, "parameters": [] }
+  ]
+}

@@ -1,0 +1,227 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/core"
+
+import {
+  "moonbitlang/core/json",
+}
+
+// Values
+pub fn apply_operator(Operator, String, String, String) -> String
+
+pub fn base64(String) -> Bool
+
+pub fn build_ruleset(@json.Json) -> Result[Ruleset, RuleLoadError]
+
+pub fn cmp_int(Int32, Int32) -> Int32
+
+pub fn cn_bank_card_checksum(String) -> Bool
+
+pub fn cn_id_checksum(String) -> Bool
+
+pub fn cn_uscc_checksum(String) -> Bool
+
+pub fn context_delta(String, Int32, Int32, ContextConf) -> Double
+
+pub fn context_window(String, Int32, Int32, Int32) -> String
+
+pub fn detect_format(String) -> InputFormat
+
+pub fn find_detector(Ruleset, String) -> DetectorIR?
+
+pub fn find_operator(Ruleset, String) -> Operator?
+
+pub fn format_name(InputFormat) -> String
+
+pub fn from_core_json(@json.Json) -> JsonValue
+
+pub fn get_path(JsonValue, String) -> JsonValue?
+
+pub fn hmac_sha256_hex(String, String) -> String
+
+pub fn imei(String) -> Bool
+
+pub fn ipv4(String) -> Bool
+
+pub fn ipv6(String) -> Bool
+
+pub fn is_operator_type(String) -> Bool
+
+pub fn is_validator(String) -> Bool
+
+pub fn isbn(String) -> Bool
+
+pub fn jwt(String) -> Bool
+
+pub fn load_ruleset(String) -> Result[Ruleset, RuleLoadError]
+
+pub fn luhn(String) -> Bool
+
+pub fn merge_same_span(Array[Detected]) -> Array[Detected]
+
+pub fn parse_json(String) -> Result[JsonValue, JsonParseError]
+
+pub fn path_match(String, String) -> Bool
+
+pub fn path_match_any(Array[String], String) -> Bool
+
+pub fn redact(String, Ruleset, EngineOptions) -> RedactResult
+
+pub fn redact_json_fields(String, Ruleset, Array[(String, JsonValue)]) -> Result[String, JsonParseError]
+
+pub fn redact_json_policy(String, Ruleset) -> Result[String, JsonParseError]
+
+pub fn resolve_overlaps(Array[Detected]) -> Array[Detected]
+
+pub fn set_path(JsonValue, String, JsonValue) -> JsonValue
+
+pub fn validate(String, String) -> Bool
+
+pub fn write_json(JsonValue) -> String
+
+// Errors
+
+// Types and methods
+pub(all) struct ContextConf {
+  mut words : Array[String]
+  mut anti_words : Array[String]
+  mut window : Int32
+  mut boost : Double
+  mut penalty : Double
+  mut case_sensitive : Bool
+}
+pub fn ContextConf::default() -> Self
+
+pub(all) struct Detected {
+  span : Span
+  detector_id : String
+  detector_order : Int32
+  entity : String
+  score : Double
+  mut matched_by : Array[String]
+  operator_id : String
+  text : String
+}
+
+pub(all) struct DetectorIR {
+  mut id : String
+  mut description : String
+  mut kind : DetectorKind
+  mut pattern : String
+  mut terms : Array[String]
+  mut targets : Array[String]
+  mut detectors : Array[String]
+  mut validator : String
+  mut context : ContextConf
+  mut score : Double
+  mut action_id : String
+  mut replacement : String
+  mut case_sensitive : Bool
+}
+
+pub(all) enum DetectorKind {
+  Pattern
+  Dictionary
+  Field
+  Composite
+  Checksum
+}
+
+pub(all) struct EngineOptions {
+  mut key : String
+  mut enable_policy : Bool
+}
+pub fn EngineOptions::default() -> Self
+
+pub(all) enum InputFormat {
+  Json
+  Logfmt
+  Plain
+  HttpHeaders
+}
+
+pub(all) struct JsonParseError {
+  message : String
+  position : Int32
+}
+
+pub(all) enum JsonValue {
+  Null
+  Bool(Bool)
+  Number(String)
+  Str(String)
+  Array(Array[JsonValue])
+  Object(Array[(String, JsonValue)])
+}
+
+pub(all) struct MatchRecord {
+  entity : String
+  start : Int32
+  end : Int32
+  operator : String
+  detector : String
+}
+
+pub(all) struct Operator {
+  mut id : String
+  mut type_ : String
+  mut replacement : String
+  mut keep_prefix : Int32
+  mut keep_suffix : Int32
+  mut fill : String
+  mut prefix : String
+  mut length : Int32
+  mut algo : String
+}
+pub fn Operator::default() -> Self
+
+type Parser
+
+pub(all) struct PolicyIR {
+  mut mode : String
+  mut allow_paths : Array[String]
+  mut ignore_paths : Array[String]
+}
+
+pub(all) struct RedactResult {
+  text : String
+  report : RedactionReport
+}
+
+pub(all) struct RedactionReport {
+  mut rules_version : String
+  mut matched_count : Int32
+  mut by_entity : Array[(String, Int32)]
+  mut by_operator : Array[(String, Int32)]
+  mut spans : Array[MatchRecord]
+}
+
+pub(all) struct RuleLoadError {
+  errors : Array[String]
+}
+
+pub(all) struct Ruleset {
+  mut version : Int32
+  mut rules_version : String
+  mut censor : String
+  mut min_score : Double
+  mut default_action : String
+  mut detections : Array[DetectorIR]
+  mut operators : Array[Operator]
+  mut policy : PolicyIR
+  mut formats : Array[String]
+  mut includes : Array[String]
+  mut errors : Array[String]
+}
+pub fn Ruleset::empty() -> Self
+
+pub(all) struct Span {
+  start : Int32
+  end : Int32
+}
+pub fn Span::contains(Self, Self) -> Bool
+pub fn Span::length(Self) -> Int32
+pub fn Span::overlaps(Self, Self) -> Bool
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,22 @@
+// js 产物：npm 包入口（esm）。导出 core 的公开 API 给 JS/Node/浏览器。
+import {
+  "veil/core",
+  "veil/crypto",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/string",
+}
+
+options(
+  link: {
+    "js": {
+      "format": "esm",
+      "exports": [
+        "version",
+        "load_ruleset_status",
+        "redact_text",
+        "tokenize",
+        "hmac_sha256_hex",
+      ],
+    },
+  },
+)

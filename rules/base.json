@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "rules_version": "2026.11.1",
+  "_comment": "通用规则集：邮箱 / URL / IPv4 / IPv6 / JWT。正则一律用 lexmatch 方言（POSIX 字符类，不用 \\d \\w \\s \\b）。",
+  "defaults": {
+    "action": "redact",
+    "censor": "[REDACTED]",
+    "min_score": 0.5
+  },
+  "detectors": [
+    {
+      "id": "email",
+      "description": "标准邮箱地址。误报：邮件列表里的 noreply@、测试域名 example.com。调整建议：提高 min_score 或加上下文词。",
+      "type": "pattern",
+      "pattern": "[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}",
+      "score": 0.9
+    },
+    {
+      "id": "url_with_credentials",
+      "description": "URL 中内嵌的用户名:密码。误报：合法带 auth 的内部链接。",
+      "type": "pattern",
+      "pattern": "https?://[A-Za-z0-9._%+\\-]+:[^@[:space:]]+@[A-Za-z0-9.\\-]+",
+      "score": 0.85
+    },
+    {
+      "id": "ipv4",
+      "description": "IPv4 地址。经 ipv4 校验器过滤（4 段 0-255）。误报：版本号 x.y.z.w。",
+      "type": "pattern",
+      "pattern": "[[:digit:]]{1,3}\\.[[:digit:]]{1,3}\\.[[:digit:]]{1,3}\\.[[:digit:]]{1,3}",
+      "validator": "ipv4",
+      "score": 0.7
+    },
+    {
+      "id": "ipv6",
+      "description": "IPv6 地址（含 :: 压缩）。经 ipv6 校验器过滤。",
+      "type": "pattern",
+      "pattern": "[0-9A-Fa-f:]{2,39}",
+      "validator": "ipv6",
+      "score": 0.6
+    },
+    {
+      "id": "jwt",
+      "description": "JSON Web Token。三段 base64url，经 jwt 校验器过滤。",
+      "type": "pattern",
+      "pattern": "eyJ[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+\\.[A-Za-z0-9_\\-]+",
+      "validator": "jwt",
+      "score": 0.9
+    }
+  ],
+  "operators": [
+    { "id": "default", "type": "redact" },
+    {
+      "id": "mask_email",
+      "type": "mask",
+      "keep": { "prefix": 1, "suffix": 0 },
+      "fill": "*"
+    },
+    {
+      "id": "stable_hash",
+      "type": "hash",
+      "algo": "hmac_sha256",
+      "prefix": "h_",
+      "length": 12
+    }
+  ],
+  "policy": {
+    "mode": "allow_by_default",
+    "allow_paths": [],
+    "ignore_paths": ["request_id", "trace_id"]
+  },
+  "formats": ["json", "logfmt", "plain", "http_headers"],
+  "includes": ["rules/cn.json", "rules/secrets.json", "rules/headers.json"]
+}

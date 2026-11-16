@@ -1,0 +1,4 @@
+{"ts":"2026-11-16T10:00:00Z","level":"info","msg":"user login","user":{"email":"alice@example.com","phone":"13800138000"}}
+{"ts":"2026-11-16T10:00:01Z","level":"warn","msg":"api call","headers":{"authorization":"Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.abcDEF123_"}}
+{"ts":"2026-11-16T10:00:02Z","level":"error","msg":"payment","card":"4111111111111111","request_id":"req-12345"}
+{"ts":"2026-11-16T10:00:03Z","level":"info","msg":"config","aws_key":"AKIAIOSFODNN7EXAMPLE","trace_id":"trace-abc"}
