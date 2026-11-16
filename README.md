@@ -12,6 +12,8 @@
 [![Backends](https://img.shields.io/badge/backends-js%20%7C%20wasm%20%7C%20wasm--gc%20%7C%20native-green.svg)](#产物与入口)
 [![Tests](https://img.shields.io/badge/tests-20%20x%204%20backends-brightgreen.svg)](#测试与质量)
 
+**简体中文** · [English](./README.en.md)
+
 [快速开始](#快速开始) · [用法](#用法) · [规则格式](#规则格式) · [输出与审计](#输出与审计) · [架构](#架构) · [测试与质量](#测试与质量) · [已知限制](#已知限制)
 
 </div>
@@ -371,7 +373,8 @@ veil/
 ├── spec/           entities / validators / operators / schemas / test-cases
 ├── scripts/        consistency / rules-lint / gen-spec / build / msvc-env
 ├── moon.mod        模块定义
-├── README.md
+├── README.md       中文版
+├── README.en.md    英文版
 ├── CHANGELOG.md
 └── LICENSE
 ```
@@ -391,6 +394,7 @@ veil/
 
 | 文档 | 内容 |
 | --- | --- |
+| [`README.en.md`](./README.en.md) | English version of this document |
 | [`rules/README.md`](./rules/README.md) | 内置规则覆盖范围、误报调整、正则方言 |
 | [`spec/schemas/ruleset.schema.json`](./spec/schemas/ruleset.schema.json) | 规则集 JSON Schema |
 | [`spec/test-cases/cases.json`](./spec/test-cases/cases.json) | 跨语言黄金用例 |

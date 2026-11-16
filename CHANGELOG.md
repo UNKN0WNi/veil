@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- English README (`README.en.md`) with a language switcher in both READMEs.
 - Native CLI: `--text` / `--input` / `--output` / `--key-env` / `--dry-run` / `--json`,
   with UTF-8 file I/O through `moonbitlang/x/fs`.
 - `scripts/msvc-env.sh`: locate MSVC + Windows SDK via `vswhere` and export
