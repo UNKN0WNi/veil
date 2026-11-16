@@ -332,7 +332,7 @@ cli / js / wasm 只依赖 core 的门面 API
 - 检测器按规则数组顺序执行；重叠消解用四级 tie-break（分数 → 声明顺序 → 长度 → 起点），不依赖哈希遍历。
 - 文本轨只在原字符串上替换，输出不做二次序列化，天然保序、保空白、保数字原文。
 - HMAC 与 token 一律 UTF-8；黄金向量 `HMAC-SHA256("secret-key","hello@example.com") = 928bc0a4...051f6d80`。
-- 实测（2026-11-16）：**23 个测试 × wasm / wasm-gc / js / native 全通过**；6 条黄金用例在 JS ESM 产物与 native CLI 上分别逐字节一致。
+- 实测（2026-11-16）：**23 个测试 × wasm / wasm-gc / js / native 全通过**；6 条黄金用例在 JS ESM 产物与 native CLI 上分别逐字节一致。同一口径在 Windows（MSVC）与 GitHub Actions Ubuntu（clang 21）两侧各自复现。
 
 ```bash
 bash scripts/consistency.sh

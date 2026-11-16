@@ -332,7 +332,7 @@ No package under `core/*` declares a target or touches platform APIs; every back
 - Detectors run in rule array order; overlap resolution uses a four-level tie-break (score → declaration order → length → start offset) and never relies on hash iteration.
 - The text track only replaces inside the original string and never re-serializes the output, so ordering, whitespace and number literals survive untouched.
 - HMAC and tokens are always UTF-8; the golden vector is `HMAC-SHA256("secret-key","hello@example.com") = 928bc0a4...051f6d80`.
-- Measured on 2026-11-16: **23 tests × wasm / wasm-gc / js / native all pass**; the 6 golden cases are byte-identical on both the JS ESM artifact and the native CLI.
+- Measured on 2026-11-16: **23 tests × wasm / wasm-gc / js / native all pass**; the 6 golden cases are byte-identical on both the JS ESM artifact and the native CLI. The same contract is reproduced on Windows (MSVC) and on GitHub Actions Ubuntu (clang 21).
 
 ```bash
 bash scripts/consistency.sh
