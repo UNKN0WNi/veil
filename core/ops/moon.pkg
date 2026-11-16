@@ -1,0 +1,7 @@
+// ops：算子（redact / replace / mask / hash / tokenize / encrypt / keep）。
+// 只依赖 x/crypto + x/encoding，保持四端字节一致；不感知检测与规则结构。
+import {
+  "moonbitlang/x/crypto",
+  "moonbitlang/x/encoding",
+  "moonbitlang/core/builtin",
+}

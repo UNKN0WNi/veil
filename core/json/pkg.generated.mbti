@@ -1,0 +1,43 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/core/json"
+
+// Values
+pub fn get_path(JsonValue, String) -> JsonValue?
+
+pub fn parse_json(String) -> Result[JsonValue, JsonParseError]
+
+pub fn path_match(String, String) -> Bool
+
+pub fn path_match_any(Array[String], String) -> Bool
+
+pub fn set_path(JsonValue, String, JsonValue) -> JsonValue
+
+pub fn write_json(JsonValue) -> String
+
+// Errors
+
+// Types and methods
+pub(all) struct JsonParseError {
+  message : String
+  position : Int32
+}
+
+pub(all) enum JsonValue {
+  Null
+  Bool(Bool)
+  Number(String)
+  Str(String)
+  Array(Array[JsonValue])
+  Object(Array[(String, JsonValue)])
+}
+pub fn JsonValue::as_array(Self) -> Array[Self]?
+pub fn JsonValue::as_bool(Self) -> Bool?
+pub fn JsonValue::as_double(Self) -> Double?
+pub fn JsonValue::as_int(Self) -> Int32?
+pub fn JsonValue::as_object(Self) -> Array[(String, Self)]?
+pub fn JsonValue::as_str(Self) -> String?
+pub fn JsonValue::get(Self, String) -> Self?
+
+// Type aliases
+
+// Traits

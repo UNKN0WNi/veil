@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/core/detect"
+
+import {
+  "veil/core/rules",
+  "veil/core/text",
+}
+
+// Values
+pub fn add_detection(String, String, Int32, Int32, @rules.DetectorIR, Int32, Double, Array[@text.Detected]) -> Unit
+
+pub fn context_delta(String, Int32, Int32, @rules.ContextConf) -> Double
+
+pub fn context_window(String, Int32, Int32, Int32) -> String
+
+pub fn detect_all(String, @rules.Ruleset, Double) -> Array[@text.Detected]
+
+pub fn detect_checksum(String, @rules.DetectorIR, Int32, Double, Array[@text.Detected]) -> Unit
+
+pub fn detect_composite(String, @rules.DetectorIR, Int32, @rules.Ruleset, Double, Array[@text.Detected]) -> Unit
+
+pub fn detect_dictionary(String, @rules.DetectorIR, Int32, Double, Array[@text.Detected]) -> Unit
+
+pub fn detect_pattern(String, @rules.DetectorIR, Int32, Double, Array[@text.Detected]) -> Unit
+
+pub fn find_substring(Array[Char], Array[Char], Int32) -> Int32
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

@@ -1,9 +1,10 @@
-// 原生产物：veil CLI（pkgtype executable）。native 构建需 MSVC（见 README）。
+// 原生产物：veil CLI 入口（pkgtype executable）。
+// 逻辑都在 veil/cli/app，这里只负责取参数并串流程。
 pkgtype(kind: "executable")
 
 import {
   "veil/core",
+  "veil/cli/app",
   "moonbitlang/core/builtin",
   "moonbitlang/core/env",
-  "moonbitlang/x/fs",
 }

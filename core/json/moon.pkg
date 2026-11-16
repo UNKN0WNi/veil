@@ -1,0 +1,5 @@
+// json：有序 JSON AST（保键序、保数字原文、拒重复键）+ 解析 / 序列化 / 路径。
+// 既用于结构轨脱敏，也用于规则集加载——全仓库只保留这一套 JSON 表示。
+import {
+  "moonbitlang/core/builtin",
+}

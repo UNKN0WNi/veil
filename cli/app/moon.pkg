@@ -1,0 +1,8 @@
+// app：CLI 的可测试主体（参数解析 / 文件读写 / 输出格式）。
+// 与入口包分离，使 main 只做编排，也让这部分逻辑能被单元测试覆盖。
+import {
+  "veil/core",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/env",
+  "moonbitlang/x/fs",
+}

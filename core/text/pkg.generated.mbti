@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/core/text"
+
+// Values
+pub fn cmp_int(Int32, Int32) -> Int32
+
+pub fn merge_same_span(Array[Detected]) -> Array[Detected]
+
+pub fn resolve_overlaps(Array[Detected]) -> Array[Detected]
+
+// Errors
+
+// Types and methods
+pub(all) struct Detected {
+  span : Span
+  detector_id : String
+  detector_order : Int32
+  entity : String
+  score : Double
+  mut matched_by : Array[String]
+  operator_id : String
+  text : String
+}
+
+pub(all) struct Span {
+  start : Int32
+  end : Int32
+}
+pub fn Span::contains(Self, Self) -> Bool
+pub fn Span::length(Self) -> Int32
+pub fn Span::overlaps(Self, Self) -> Bool
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,82 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/core/rules"
+
+import {
+  "veil/core/json",
+  "veil/core/ops",
+}
+
+// Values
+pub fn build_ruleset(@json.JsonValue) -> Result[Ruleset, RuleLoadError]
+
+pub fn find_detector(Ruleset, String) -> DetectorIR?
+
+pub fn find_operator(Ruleset, String) -> @ops.Operator?
+
+pub fn load_ruleset(String) -> Result[Ruleset, RuleLoadError]
+
+// Errors
+
+// Types and methods
+pub(all) struct ContextConf {
+  mut words : Array[String]
+  mut anti_words : Array[String]
+  mut window : Int32
+  mut boost : Double
+  mut penalty : Double
+  mut case_sensitive : Bool
+}
+pub fn ContextConf::default() -> Self
+
+pub(all) struct DetectorIR {
+  mut id : String
+  mut description : String
+  mut kind : DetectorKind
+  mut pattern : String
+  mut terms : Array[String]
+  mut targets : Array[String]
+  mut detectors : Array[String]
+  mut validator : String
+  mut context : ContextConf
+  mut score : Double
+  mut action_id : String
+  mut replacement : String
+  mut case_sensitive : Bool
+}
+
+pub(all) enum DetectorKind {
+  Pattern
+  Dictionary
+  Field
+  Composite
+  Checksum
+}
+
+pub(all) struct PolicyIR {
+  mut mode : String
+  mut allow_paths : Array[String]
+  mut ignore_paths : Array[String]
+}
+
+pub(all) struct RuleLoadError {
+  errors : Array[String]
+}
+
+pub(all) struct Ruleset {
+  mut version : Int32
+  mut rules_version : String
+  mut censor : String
+  mut min_score : Double
+  mut default_action : String
+  mut detections : Array[DetectorIR]
+  mut operators : Array[@ops.Operator]
+  mut policy : PolicyIR
+  mut formats : Array[String]
+  mut includes : Array[String]
+  mut errors : Array[String]
+}
+pub fn Ruleset::empty() -> Self
+
+// Type aliases
+
+// Traits

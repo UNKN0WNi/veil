@@ -6,30 +6,6 @@
 // 同一命中多个上下文词不叠加（取最高 boost），保证确定性。
 
 ///|
-/// 上下文配置。
-pub(all) struct ContextConf {
-  mut words : Array[String]
-  mut anti_words : Array[String]
-  mut window : Int32
-  mut boost : Double
-  mut penalty : Double
-  mut case_sensitive : Bool
-}
-
-///|
-/// 默认上下文配置（无词、窗口 24、boost 0）。
-pub fn ContextConf::default() -> ContextConf {
-  {
-    words: [],
-    anti_words: [],
-    window: 24,
-    boost: 0.0,
-    penalty: 0.0,
-    case_sensitive: false,
-  }
-}
-
-///|
 /// 取上下文窗口文本：命中区间前后各 window 个字符。
 pub fn context_window(
   text : String,

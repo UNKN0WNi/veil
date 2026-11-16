@@ -1,0 +1,9 @@
+// rules：规则 IR 与加载。JSON → IR，schema + 语义校验，任一条非法整体失败。
+// 只依赖 json / ops / validate，不感知执行引擎。
+import {
+  "veil/core/json",
+  "veil/core/ops",
+  "veil/core/validate",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/string",
+}

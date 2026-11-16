@@ -18,8 +18,8 @@ pub(all) enum InputFormat {
 /// 探测输入格式（启发式）。
 pub fn detect_format(text : String) -> InputFormat {
   let t = text.trim()
-  if (t.starts_with("{") && t.ends_with("}")) ||
-    (t.starts_with("[") && t.ends_with("]")) {
+  if (t.has_prefix("{") && t.has_suffix("}")) ||
+    (t.has_prefix("[") && t.has_suffix("]")) {
     Json
   } else if t.contains(": ") && t.contains("\n") && !t.contains("{") {
     HttpHeaders
@@ -100,7 +100,7 @@ fn filter_object(
 /// 是否存在以 path 为前缀的 allow 路径（保留中间节点以便到达白名单叶子）。
 fn has_allowed_descendant(allow : Array[String], path : String) -> Bool {
   for a in allow {
-    if a.starts_with(path + ".") {
+    if a.has_prefix(path + ".") {
       return true
     }
   }
@@ -111,7 +111,7 @@ fn has_allowed_descendant(allow : Array[String], path : String) -> Bool {
 /// 结构轨：按路径整字段替换（用于 field/composite 的 hash/encrypt 整值处理）。
 pub fn redact_json_fields(
   text : String,
-  ruleset : Ruleset,
+  _ruleset : Ruleset,
   replacements : Array[(String, JsonValue)],
 ) -> Result[String, JsonParseError] {
   let root = match parse_json(text) {

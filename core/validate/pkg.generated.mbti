@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/core/validate"
+
+// Values
+pub fn base64(String) -> Bool
+
+pub fn cn_bank_card_checksum(String) -> Bool
+
+pub fn cn_id_checksum(String) -> Bool
+
+pub fn cn_uscc_checksum(String) -> Bool
+
+pub fn imei(String) -> Bool
+
+pub fn ipv4(String) -> Bool
+
+pub fn ipv6(String) -> Bool
+
+pub fn is_validator(String) -> Bool
+
+pub fn isbn(String) -> Bool
+
+pub fn jwt(String) -> Bool
+
+pub fn luhn(String) -> Bool
+
+pub fn validate(String, String) -> Bool
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

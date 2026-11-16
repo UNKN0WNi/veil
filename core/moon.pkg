@@ -1,20 +1,16 @@
-// core：后端无关内核。依赖 moonbitlang/core + moonbitlang/x/crypto（均为纯 MoonBit、
-// 四后端一致），不依赖任何平台相关库（计划书 §7.4 的实质是"后端无关"）。
+// core：veil 的门面包。只保留引擎编排与对外 re-export，
+// 具体能力分散在子包：json / text / rules / detect / ops / validate / structure。
 import {
-  "moonbitlang/x/crypto",
-  "moonbitlang/x/encoding",
+  "veil/core/json",
+  "veil/core/text",
+  "veil/core/rules",
+  "veil/core/detect",
+  "veil/core/ops",
+  "veil/core/validate",
+  "veil/core/structure",
   "moonbitlang/core/builtin",
-  "moonbitlang/core/string",
-  "moonbitlang/core/json",
-  "moonbitlang/core/int",
-  "moonbitlang/core/char",
-  "moonbitlang/core/array",
-  "moonbitlang/core/buffer",
-  "moonbitlang/core/option",
-  "moonbitlang/core/result",
-  "moonbitlang/core/list",
 }
 
 import {
-  "moonbitlang/core/test",
+  "moonbitlang/core/string",
 } for "test"

@@ -1,0 +1,4 @@
+// validate：校验和 / 结构校验器。纯函数、无状态，供检测器与规则加载共用。
+import {
+  "moonbitlang/core/builtin",
+}

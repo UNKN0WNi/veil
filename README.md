@@ -10,7 +10,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20261104-orange.svg)](https://www.moonbitlang.com/)
 [![Backends](https://img.shields.io/badge/backends-js%20%7C%20wasm%20%7C%20wasm--gc%20%7C%20native-green.svg)](#产物与入口)
-[![Tests](https://img.shields.io/badge/tests-20%20x%204%20backends-brightgreen.svg)](#测试与质量)
+[![Tests](https://img.shields.io/badge/tests-23%20x%204%20backends-brightgreen.svg)](#测试与质量)
 
 **简体中文** · [English](./README.en.md)
 
@@ -296,14 +296,31 @@ MoonBit 层拿到的是 `RedactResult`：
 
 | 模块 | 职责 |
 | --- | --- |
-| `core/` | 后端无关内核：Span 与消解、规则 IR、检测、上下文打分、校验器、算子、文本轨替换、有序 JSON AST |
+| `core/` | 门面包：只做引擎编排（检测 → 消解 → 算子 → 报告）并 re-export 子包 API |
+| `core/json/` | 有序 JSON AST、解析器、序列化、JSON 路径 |
+| `core/text/` | `Span` / `Detected` / 确定性重叠消解 |
+| `core/rules/` | 规则 IR、JSON → IR 加载与语义校验、上下文窗口配置 |
+| `core/detect/` | 四类检测策略（pattern / dictionary / checksum / composite）与上下文打分 |
+| `core/ops/` | 七种算子 |
+| `core/validate/` | 10 个校验器 |
+| `core/structure/` | 格式探测与 JSON 结构轨 |
 | `crypto/` | HMAC-SHA256、SHA-256、确定性 token、进程内 Vault |
-| `cli/` `js/` `wasm/` | 三个入口包，共用同一 `core/` |
+| `cli/` `js/` `wasm/` | 三个入口包；`cli/app` 承载可测试的 CLI 逻辑，`cli/` 只留 `main` |
 | `rules/` | 4 套内置规则：base / cn / secrets / headers |
 | `spec/` | 语言无关规范：实体、校验器、算子、JSON Schema、黄金用例与 corpus |
 | `scripts/` | 一致性、规则 lint、spec 生成、产物构建 |
 
-`core/` 不声明 target，也不依赖平台 API；所有后端差异被限制在入口包。
+依赖是单向的，没有环：
+
+```text
+json / text / validate / ops        （叶子，互不依赖）
+        └──► rules ──► detect ──┐
+                    structure ──┼──► core（引擎编排 + 门面）
+                                ┘
+cli / js / wasm 只依赖 core 的门面 API
+```
+
+`core/*` 不声明 target，也不依赖平台 API；所有后端差异被限制在入口包。调用方只 import `veil/core` 即可，子包拆分对 API 不可见。
 
 ## 一致性保证
 
@@ -313,7 +330,7 @@ MoonBit 层拿到的是 `RedactResult`：
 - 检测器按规则数组顺序执行；重叠消解用四级 tie-break（分数 → 声明顺序 → 长度 → 起点），不依赖哈希遍历。
 - 文本轨只在原字符串上替换，输出不做二次序列化，天然保序、保空白、保数字原文。
 - HMAC 与 token 一律 UTF-8；黄金向量 `HMAC-SHA256("secret-key","hello@example.com") = 928bc0a4...051f6d80`。
-- 实测（2026-11-16）：**20 个测试 × wasm / wasm-gc / js / native 全通过**；6 条黄金用例在 JS ESM 产物与 native CLI 上分别逐字节一致。
+- 实测（2026-11-16）：**23 个测试 × wasm / wasm-gc / js / native 全通过**；6 条黄金用例在 JS ESM 产物与 native CLI 上分别逐字节一致。
 
 ```bash
 bash scripts/consistency.sh
@@ -322,7 +339,7 @@ bash scripts/consistency.sh
 ## 测试与质量
 
 ```bash
-moon test --target js          # 20 个测试
+moon test --target js          # 23 个测试
 moon test --target wasm
 moon test --target wasm-gc
 moon test --target native
@@ -366,15 +383,24 @@ bash scripts/build.sh          # 构建 JS / WASM / WASM-GC / Native 产物到 d
 
 ```text
 veil/
-├── core/           Span / 规则 IR / 检测 / 打分 / 校验 / 算子 / 文本轨 / JSON AST
-├── crypto/         HMAC-SHA256、token、进程内 Vault
-├── cli/ js/ wasm/  三个入口包
-├── rules/          base / cn / secrets / headers 四套规则
-├── spec/           entities / validators / operators / schemas / test-cases
-├── scripts/        consistency / rules-lint / gen-spec / build / msvc-env
-├── moon.mod        模块定义
-├── README.md       中文版
-├── README.en.md    英文版
+├── core/               门面：引擎编排 + 对外 re-export
+│   ├── json/           有序 JSON AST / 解析 / 序列化 / 路径
+│   ├── text/           Span / Detected / 重叠消解
+│   ├── rules/          规则 IR 与加载
+│   ├── detect/         检测策略 + 上下文打分
+│   ├── ops/            七种算子
+│   ├── validate/       10 个校验器
+│   └── structure/      格式探测 + JSON 结构轨
+├── crypto/             HMAC-SHA256、token、进程内 Vault
+├── cli/                CLI 入口（main）
+│   └── app/            参数解析 / 文件读写 / 输出格式（含单测）
+├── js/ wasm/           两个运行时入口
+├── rules/              base / cn / secrets / headers 四套规则
+├── spec/               entities / validators / operators / schemas / test-cases
+├── scripts/            consistency / rules-lint / gen-spec / build / msvc-env
+├── moon.mod            模块定义
+├── README.md           中文版
+├── README.en.md        英文版
 ├── CHANGELOG.md
 └── LICENSE
 ```

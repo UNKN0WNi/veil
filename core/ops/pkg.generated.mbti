@@ -1,0 +1,29 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/core/ops"
+
+// Values
+pub fn apply_operator(Operator, String, String, String) -> String
+
+pub fn hmac_sha256_hex(String, String) -> String
+
+pub fn is_operator_type(String) -> Bool
+
+// Errors
+
+// Types and methods
+pub(all) struct Operator {
+  mut id : String
+  mut type_ : String
+  mut replacement : String
+  mut keep_prefix : Int32
+  mut keep_suffix : Int32
+  mut fill : String
+  mut prefix : String
+  mut length : Int32
+  mut algo : String
+}
+pub fn Operator::default() -> Self
+
+// Type aliases
+
+// Traits

@@ -59,13 +59,18 @@ veil/
 │   ├── operators.json           # 算子定义
 │   ├── schemas/                 # ruleset/testcase JSON Schema
 │   └── test-cases/cases.json    # 跨后端一致性用例
-├── core/                        # 后端无关内核
-│   ├── span.mbt / rule.mbt / config.mbt / engine.mbt
-│   ├── validator.mbt / operator.mbt / context.mbt / path.mbt
-│   ├── jsonval.mbt / jsonparse.mbt / jsonwrite.mbt / format.mbt
-│   └── *_wbtest.mbt             # 单元测试
+├── core/                        # 门面：引擎编排 + 对外 re-export
+│   ├── engine.mbt / lib.mbt
+│   ├── json/                    # 有序 JSON AST / 解析 / 序列化 / 路径
+│   ├── text/                    # Span / Detected / 重叠消解
+│   ├── rules/                   # IR / 加载 / 解析 / 取值辅助
+│   ├── detect/                  # 四类检测策略 + 上下文打分
+│   ├── ops/                     # 七种算子
+│   ├── validate/                # 10 个校验器
+│   └── structure/               # 格式探测 + JSON 结构轨
 ├── crypto/                      # token.mbt（HMAC 令牌）/ vault.mbt
-├── cli/                         # 原生产物（需 MSVC 构建）
+├── cli/                         # 原生产物入口（需 MSVC 构建）
+│   └── app/                     # 参数解析 / 文件读写 / 输出格式
 ├── js/                          # js (esm) 产物 + npm 打包元数据
 ├── wasm/                        # wasm / wasm-gc 产物
 ├── rules/                       # base.json / cn.json / secrets.json / headers.json
@@ -74,6 +79,9 @@ veil/
 ├── README.md / CHANGELOG.md / LICENSE(Apache-2.0)
 └── IMPLEMENTATION_PLAN.md       # 本文件
 ```
+
+> 说明：最初把内核放在单个 `core/` 包里；实现完成后按职责与依赖方向拆成 7 个子包，
+> 根包退化为门面（`pub using` 再导出），对外 API 不变。测试随代码下沉到各自包内。
 
 ### 2.2 功能清单（对齐计划书 §4）
 

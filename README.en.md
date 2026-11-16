@@ -10,7 +10,7 @@ one declarative JSON rule set, byte-identical across backends.
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
 [![MoonBit](https://img.shields.io/badge/MoonBit-0.1.20261104-orange.svg)](https://www.moonbitlang.com/)
 [![Backends](https://img.shields.io/badge/backends-js%20%7C%20wasm%20%7C%20wasm--gc%20%7C%20native-green.svg)](#artifacts-and-entry-points)
-[![Tests](https://img.shields.io/badge/tests-20%20x%204%20backends-brightgreen.svg)](#tests-and-quality)
+[![Tests](https://img.shields.io/badge/tests-23%20x%204%20backends-brightgreen.svg)](#tests-and-quality)
 
 [简体中文](./README.md) · **English**
 
@@ -296,14 +296,31 @@ input text / JSON / log line
 
 | Module | Responsibility |
 | --- | --- |
-| `core/` | Backend-neutral kernel: Span and resolution, rule IR, detection, context scoring, validators, operators, text-track replacement, ordered JSON AST |
+| `core/` | Facade: engine orchestration (detect → resolve → operator → report) plus re-exports of the subpackages |
+| `core/json/` | Ordered JSON AST, parser, serializer, JSON paths |
+| `core/text/` | `Span` / `Detected` / deterministic overlap resolution |
+| `core/rules/` | Rule IR, JSON → IR loading and semantic validation, context window config |
+| `core/detect/` | Four detection strategies (pattern / dictionary / checksum / composite) plus context scoring |
+| `core/ops/` | The seven operators |
+| `core/validate/` | The ten validators |
+| `core/structure/` | Format detection and the JSON structural track |
 | `crypto/` | HMAC-SHA256, SHA-256, deterministic tokens, in-process Vault |
-| `cli/` `js/` `wasm/` | Three entry packages, all sharing one `core/` |
+| `cli/` `js/` `wasm/` | Three entry packages; `cli/app` holds the testable CLI logic, `cli/` keeps only `main` |
 | `rules/` | Four built-in rule sets: base / cn / secrets / headers |
 | `spec/` | Language-neutral spec: entities, validators, operators, JSON Schema, golden cases and corpus |
 | `scripts/` | Consistency, rule lint, spec generation, artifact build |
 
-`core/` declares no target and depends on no platform API; every backend difference is confined to the entry packages.
+Dependencies flow one way, with no cycles:
+
+```text
+json / text / validate / ops        (leaves, independent of each other)
+        └──► rules ──► detect ──┐
+                    structure ──┼──► core (orchestration + facade)
+                                ┘
+cli / js / wasm depend only on the `core` facade
+```
+
+No package under `core/*` declares a target or touches platform APIs; every backend difference stays in the entry packages. Callers import `veil/core` only — the subpackage split is invisible in the API.
 
 ## Consistency guarantees
 
@@ -313,7 +330,7 @@ input text / JSON / log line
 - Detectors run in rule array order; overlap resolution uses a four-level tie-break (score → declaration order → length → start offset) and never relies on hash iteration.
 - The text track only replaces inside the original string and never re-serializes the output, so ordering, whitespace and number literals survive untouched.
 - HMAC and tokens are always UTF-8; the golden vector is `HMAC-SHA256("secret-key","hello@example.com") = 928bc0a4...051f6d80`.
-- Measured on 2026-11-16: **20 tests × wasm / wasm-gc / js / native all pass**; the 6 golden cases are byte-identical on both the JS ESM artifact and the native CLI.
+- Measured on 2026-11-16: **23 tests × wasm / wasm-gc / js / native all pass**; the 6 golden cases are byte-identical on both the JS ESM artifact and the native CLI.
 
 ```bash
 bash scripts/consistency.sh
@@ -322,7 +339,7 @@ bash scripts/consistency.sh
 ## Tests and quality
 
 ```bash
-moon test --target js          # 20 tests
+moon test --target js          # 23 tests
 moon test --target wasm
 moon test --target wasm-gc
 moon test --target native
@@ -366,14 +383,24 @@ bash scripts/build.sh          # build JS / WASM / WASM-GC / Native into dist/
 
 ```text
 veil/
-├── core/           Span / rule IR / detection / scoring / validation / operators / text track / JSON AST
-├── crypto/         HMAC-SHA256, tokens, in-process Vault
-├── cli/ js/ wasm/  three entry packages
-├── rules/          base / cn / secrets / headers
-├── spec/           entities / validators / operators / schemas / test-cases
-├── scripts/        consistency / rules-lint / gen-spec / build / msvc-env
-├── moon.mod        module definition
-├── README.md
+├── core/               facade: engine orchestration + public re-exports
+│   ├── json/           ordered JSON AST / parser / serializer / paths
+│   ├── text/           Span / Detected / overlap resolution
+│   ├── rules/          rule IR and loading
+│   ├── detect/         detection strategies + context scoring
+│   ├── ops/            the seven operators
+│   ├── validate/       the ten validators
+│   └── structure/      format detection + JSON structural track
+├── crypto/             HMAC-SHA256, tokens, in-process Vault
+├── cli/                CLI entry (main)
+│   └── app/            argument parsing / file I/O / output formatting (with tests)
+├── js/ wasm/           the two runtime entry points
+├── rules/              base / cn / secrets / headers
+├── spec/               entities / validators / operators / schemas / test-cases
+├── scripts/            consistency / rules-lint / gen-spec / build / msvc-env
+├── moon.mod            module definition
+├── README.md           Chinese version
+├── README.en.md        English version
 ├── CHANGELOG.md
 └── LICENSE
 ```

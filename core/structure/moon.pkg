@@ -1,0 +1,7 @@
+// structure：输入格式探测与 JSON 结构轨（fail-closed 白名单、按路径整字段替换）。
+// 与文本轨并列，二者互不依赖；默认 redact 只走文本轨，结构轨需显式调用。
+import {
+  "veil/core/json",
+  "veil/core/rules",
+  "moonbitlang/core/builtin",
+}

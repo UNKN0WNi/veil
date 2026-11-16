@@ -3,12 +3,4 @@ import {
   "moonbitlang/x/crypto" @xcrypto,
   "moonbitlang/x/encoding",
   "moonbitlang/core/builtin",
-  "moonbitlang/core/string",
-  "moonbitlang/core/buffer",
-  "moonbitlang/core/int",
-  "moonbitlang/core/array",
 }
-
-import {
-  "moonbitlang/core/test",
-} for "test"

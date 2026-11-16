@@ -3,7 +3,6 @@ import {
   "veil/core",
   "veil/crypto",
   "moonbitlang/core/builtin",
-  "moonbitlang/core/string",
 }
 
 options(

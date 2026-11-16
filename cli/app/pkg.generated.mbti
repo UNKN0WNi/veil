@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/cli/app"
+
+import {
+  "veil/core",
+}
+
+// Values
+pub fn escape_json_string(String) -> String
+
+pub fn json_result(@core.RedactResult) -> String
+
+pub fn parse_args(ArrayView[String]) -> Args
+
+pub fn read_text_file(String, String) -> String
+
+pub fn report_to_string(@core.RedactResult) -> String
+
+pub fn write_text_file(String, String) -> Unit
+
+// Errors
+
+// Types and methods
+pub(all) struct Args {
+  text : String?
+  input : String?
+  rules : String?
+  output : String?
+  key_env : String
+  dry_run : Bool
+  json : Bool
+  version : Bool
+  help : Bool
+}
+
+// Type aliases
+
+// Traits

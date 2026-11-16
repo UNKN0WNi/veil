@@ -4,33 +4,33 @@
 ///|
 test "hmac known vector" {
   assert_eq(
-    hmac_sha256_hex("secret-key", "hello@example.com"),
+    @crypto.hmac_sha256_hex("secret-key", "hello@example.com"),
     "928bc0a4262ca7746556831aee52ee3edfb53b2efd95c57a8f4d1efd051f6d80",
   )
 }
 
 ///|
 test "tokenize deterministic" {
-  let a = tokenize("k", "a@b.com", "h_", 12)
-  let b = tokenize("k", "a@b.com", "h_", 12)
+  let a = @crypto.tokenize("k", "a@b.com", "h_", 12)
+  let b = @crypto.tokenize("k", "a@b.com", "h_", 12)
   assert_eq(a, b)
-  assert_true(a.starts_with("h_"))
+  assert_true(a.has_prefix("h_"))
   assert_eq(a.length(), 14)
-  assert_true(tokenize("other", "a@b.com", "h_", 12) != a)
+  assert_true(@crypto.tokenize("other", "a@b.com", "h_", 12) != a)
 }
 
 ///|
 test "sha256 hex" {
   // sha256("abc") 标准向量
   assert_eq(
-    sha256_hex("abc"),
+    @crypto.sha256_hex("abc"),
     "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
   )
 }
 
 ///|
 test "vault seal restore" {
-  let v = Vault::new("key")
+  let v = @crypto.Vault::new("key")
   let t1 = v.seal("13800138000")
   let t2 = v.seal("13800138000")
   assert_eq(t1, t2)

@@ -1,0 +1,9 @@
+// detect：值级检测策略（pattern / dictionary / checksum / composite）+ 上下文打分。
+// 只读规则 IR，不做算子与输出；返回候选 Detected 交给上游消解。
+import {
+  "veil/core/text",
+  "veil/core/rules",
+  "veil/core/validate",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/string",
+}

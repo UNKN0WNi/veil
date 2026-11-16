@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "veil/core/structure"
+
+import {
+  "veil/core/json",
+  "veil/core/rules",
+}
+
+// Values
+pub fn detect_format(String) -> InputFormat
+
+pub fn format_name(InputFormat) -> String
+
+pub fn redact_json_fields(String, @rules.Ruleset, Array[(String, @json.JsonValue)]) -> Result[String, @json.JsonParseError]
+
+pub fn redact_json_policy(String, @rules.Ruleset) -> Result[String, @json.JsonParseError]
+
+// Errors
+
+// Types and methods
+pub(all) enum InputFormat {
+  Json
+  Logfmt
+  Plain
+  HttpHeaders
+}
+
+// Type aliases
+
+// Traits

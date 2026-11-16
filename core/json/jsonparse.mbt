@@ -16,7 +16,7 @@ pub(all) struct JsonParseError {
 
 ///|
 /// 解析器状态。
-struct Parser {
+priv struct Parser {
   chars : Array[Char]
   mut pos : Int32
 }
@@ -158,7 +158,7 @@ fn parse_string(p : Parser) -> Result[String, JsonParseError] {
               position: p.pos,
             })
           Some(code) => {
-            out += String::from_array([Char::from_int(code)])
+            out += String::from_array([code.unsafe_to_char()])
             p.pos += 4
           }
         }

@@ -280,7 +280,7 @@ pub fn jwt(s : String) -> Bool {
       }
     }
   }
-  parts[0].starts_with("eyJ")
+  parts[0].has_prefix("eyJ")
 }
 
 ///|

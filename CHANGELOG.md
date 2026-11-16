@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- `core` is now split into dependency-ordered subpackages: `json`, `text`,
+  `rules`, `detect`, `ops`, `validate`, `structure`, with `veil/core` acting as
+  a facade that re-exports the public API unchanged.
+- `JsonValue` accessors (`get` / `as_str` / `as_bool` / `as_array` / `as_double`
+  / `as_int`); rule loading now uses the ordered AST instead of `core/json`.
+- `cli/app` package with argument parsing, file I/O and output formatting, plus
+  unit tests for `parse_args`.
 - English README (`README.en.md`) with a language switcher in both READMEs.
 - Native CLI: `--text` / `--input` / `--output` / `--key-env` / `--dry-run` / `--json`,
   with UTF-8 file I/O through `moonbitlang/x/fs`.
@@ -22,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `scripts/consistency.sh` now covers `wasm` / `wasm-gc` / `js` / `native`,
   including native CLI golden cases.
 - `scripts/build.sh` copies the native binary to `dist/veil.exe` (or `dist/veil`).
+- Tests live next to the code they cover; `core/core_test.mbt` keeps only the
+  end-to-end cases.
+- Dead code removed: `from_core_json` and the `core/json` dependency of `core`.
+- Deprecated APIs replaced (`starts_with` → `has_prefix`, `Int::from_int` →
+  `unsafe_to_char`, `is_none()` → `is None`); `moon check` is now warning-free.
 
 ## [0.1.0] - 2026-11-16
 
